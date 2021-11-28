@@ -40,7 +40,7 @@ def userConnections(self):
         self.tcp_s.listen(25)
         while True:
             conn, address = self.tcp_s.accept()
-            data = conn.recv(1024) #messages: JOIN Nick; AWLI; LEAV;
+            data = conn.recv(1024) #messages: JOIN Nick; AWLI; LEAV; GIVE Nick;
             decoded = data.decode('UTF-8')
             message = decoded.split()
             if(message[0] == 'JOIN' and len(message[1]) > 0 and len(message[2]) > 0):
@@ -83,6 +83,15 @@ def newConnection(self, conn, user):
                     conn.send(bytes(message, 'UTF-8'))
                     
                     #TODO wysłanie IP wybranego usera
+                elif(message[0] == 'GIVE' and len(message[1]) > 0):
+                    #szukanie po nazwie usera
+                    #print('give')
+                    message = 'IP'
+                    usrname = message[1]
+                    for u in self.userList:
+                        if (u.name == usrname):
+                            message += ' '+str(u.tcpAddr)
+                    conn.send(bytes(message, 'UTF-8'))
 
             except socket.error:
                 try:

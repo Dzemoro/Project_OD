@@ -43,7 +43,7 @@ def userConnections(self):
             data = conn.recv(1024) #messages: JOIN Nick; AWLI; LEAV; GIVE Nick;
             decoded = data.decode('UTF-8')
             message = decoded.split()
-            if(message[0] == 'JOIN' and len(message[1]) > 0 and len(message[2]) > 0):
+            if(message[0] == 'JOIN' and len(message[1]) > 0):
                 
                 user = User(conn, message[1], address, int(message[2]))
                 self.userList.append(user)
@@ -53,7 +53,7 @@ def userConnections(self):
                 #user_udp_s.bind((self.ip, 0))
 
                 #send OK with udp port for audio communication
-                conn.send(bytes('WELCOME', 'UTF-8'))
+                conn.send(bytes('OK', 'UTF-8'))
                 #print("\n"+user.udpAddr[0]+" User "+user.name+" joined server")
                 #print("  TCP: "+str(user.tcpAddr[1])+" <-> "+str(self.server_tcp_port))
                 #print("  UDP: "+str(user.udpAddr[1])+" <-> "+str(user_udp_s.getsockname()[1]))

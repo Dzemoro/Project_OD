@@ -1,3 +1,7 @@
+from sys import path
+if '' not in path:
+    path.append('')
+
 import socket
 from threading import Thread
 from contextlib import closing
@@ -10,7 +14,6 @@ class User:
         self.tcpConn = tcpConn
         self.name = name
         self.tcpAddr = addr
-        #self.udpAddr = (addr[0],udpPort)
         
 class Server:
     def __init__(self, ip, tcp_port):

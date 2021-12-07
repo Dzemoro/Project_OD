@@ -7,6 +7,9 @@ class Encrypting:
     
 class Cipher(enum.Enum):
     NO_CIPHER = 1
-    UBCHI = 2
-    INNY = 3
+    RAGBABY = 2
+    FERNET = 3
 
+
+def encrypt():
+    return null

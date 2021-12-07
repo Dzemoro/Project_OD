@@ -1,4 +1,6 @@
-class UbchiCipher: #moj szyfr z podow, moze byc trudny w zarzadzaniu
+import random, string
+
+class UbchiCipher: #dziala, wiadomosc odszyfrowana nie ma spacji :sadek:
     
     def keySequence(self,key):
         sequence = []
@@ -109,11 +111,10 @@ class UbchiCipher: #moj szyfr z podow, moze byc trudny w zarzadzaniu
         ileUsun = ileKolumn * ileWszystkichRzedow - indexik + ileZnakowDodatkowych
         return matrix, ileUsun
 
-    def encrypt(self, keyTmp):
+    def encrypt(self, text, keyTmp):
         keyTmp = keyTmp.lower()
         key = keyTmp.replace(" ", "")
         ileZnakowDodatkowych = len(keyTmp) - len(key) + 1
-        text = self.messageField.text()
         text = text.lower().replace(" ", "")
 
         sekwencja = self.keySequence(key)
@@ -122,11 +123,10 @@ class UbchiCipher: #moj szyfr z podow, moze byc trudny w zarzadzaniu
         finalMessage = self.splitMatrix(finalLista, sekwencja)
         return finalMessage
 
-    def decrypt(self, keyTmp):
+    def decrypt(self, text, keyTmp):
         keyTmp = keyTmp.lower()
         key = keyTmp.replace(" ", "")
         ileZnakowDodatkowych = len(keyTmp) - len(key) + 1
-        text = self.encryptedText.text()
         text = text.lower().replace(" ", "")
 
         decMatrix, ileUsun = self.textIntoColumns(text, key, ileZnakowDodatkowych)
@@ -138,6 +138,20 @@ class UbchiCipher: #moj szyfr z podow, moze byc trudny w zarzadzaniu
         decryptedText = ''.join(ele for sub in finalDecryptedMatrix for ele in sub)
         originalText = decryptedText.replace(" ", "")
 
-        finalText = ' '.join([originalText[i:i + 48] for i in range(0, len(originalText), 48)]) #zawijanie rzedami na sile, nie da sie inaczej tego zrobic
+        #finalText = ' '.join([originalText[i:i + 48] for i in range(0, len(originalText), 48)]) #zawijanie rzedami na sile, nie da sie inaczej tego zrobic
 
-        return finalText
+        return originalText
+    
+    def test(self):
+        key_length = random.randint(10,20)
+        text_length = random.randint(100,200)
+        key = ''.join(random.SystemRandom().choice(string.ascii_uppercase + ' ') for _ in range(key_length)).strip()
+        text = ''.join(random.SystemRandom().choice(string.ascii_uppercase + ' ') for _ in range(text_length)).strip()
+
+        encrypted_text = self.encrypt(text, key)
+        decrypted_text = self.decrypt(encrypted_text, key)
+
+        print(decrypted_text)
+
+ubchi = UbchiCipher()
+ubchi.test()

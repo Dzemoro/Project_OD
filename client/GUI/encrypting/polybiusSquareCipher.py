@@ -1,18 +1,13 @@
 import re, random, string
 class PolybiusSquareCipher:
 
-    def unPolishText(self, text):
-        """Converts Polish letters to Latin"""
-        polish = "ĄĆĘŁŃÓŚŹŻ"
-        normal = "ACELNOSZZ"
-        table = text.maketrans(polish, normal)
-        return text.translate(table)
-
-
     def generate_array(self, key=''):
         """Generates Polybius square"""
-        abc = 'ABCDEFGHIKLMNOPQRSTUVWXYZ'
-        arr_el=[]
+        abc = 'AĄBCĆDEĘFGHIJKLŁMNŃOÓPQRSŚTUVWXYZŹŻ'
+        abc += 'aąbcćdeęfghijklłmnńoópqrsśtuvwxyzźż'
+        abc += '0123456789 '
+        print(abc)
+        arr_el = []
         arr = []
         row = []
         if key:
@@ -24,28 +19,22 @@ class PolybiusSquareCipher:
                     arr_el.append(char)
         else:
             arr_el = abc
-        for i in range(5):
-            for j in range(5):
-                row.append(arr_el[i*5 + j])
+        for i in range(9):
+            for j in range(9):
+                row.append(arr_el[i*9 + j])
             arr.append(row)
             row = []
         return arr
             
     def encrypt(self, word, key=''):
         """Encrypts message"""
-        word = word.upper()
-        key = key.upper()
-        word = re.sub(r'J','I', word)
-        key = re.sub(r'J','I', key)
-        word = self.unPolishText(word)
-        key = self.unPolishText(key)
-        word = re.sub('[^A-Z]','', word)
-        key = re.sub('[^A-Z]','', key)
+        # word = re.sub('[^A-Z]','', word)
+        # key = re.sub('[^A-Z]','', key)
         arr = self.generate_array(key)
         output = ''
         for char in word:
-            for i in range(5):
-                for j in range(5):
+            for i in range(9):
+                for j in range(9):
                     if char is arr[i][j]:
                         output+=str(j+1)
                         output+=str(i+1)
@@ -53,11 +42,7 @@ class PolybiusSquareCipher:
 
     def decrypt(self, word, key=''):
         """Decrypts message"""
-        word = word.upper()
-        key = key.upper()
-        key = re.sub(r'J','I', key)
-        key = self.unPolishText(key)
-        key = re.sub('[^A-Z]','', key)
+        # key = re.sub('[^A-Z]','', key)
         arr = self.generate_array(key)
         output = ''
         for i in range(int(len(word)/2)):
@@ -78,7 +63,5 @@ class PolybiusSquareCipher:
 
         print(decrypted_text)
     
-    
-
 polybius = PolybiusSquareCipher()
 polybius.test()

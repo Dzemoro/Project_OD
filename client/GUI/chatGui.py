@@ -2,40 +2,26 @@ import sys, os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from PyQt5 import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QCursor, QIcon
 
-from clientGuiMethods import *
 from stylesheets import *
 
-class Ui_Dialog(object):
+class ChatWindow(QMainWindow):
     imgPath = os.path.dirname(os.path.abspath(__file__)) + "/images/"
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.setEnabled(True)
-        Dialog.resize(600, 800)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(Dialog.sizePolicy().hasHeightForWidth())
-        Dialog.setSizePolicy(sizePolicy)
-        Dialog.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
-        Dialog.setLayoutDirection(QtCore.Qt.LeftToRight)
-        Dialog.setStyleSheet(dialogStyle)
-        Dialog.setFixedSize(Dialog.size())
-        Dialog.setWindowFlag(QtCore.Qt.WindowMinimizeButtonHint, True)
-        Dialog.setWindowFlag(QtCore.Qt.WindowMaximizeButtonHint, False)
-        Dialog.setWindowIcon(QIcon(self.imgPath + "window_icon.png"))
-
-        self.layoutWidget = QtWidgets.QWidget(Dialog)
-        self.layoutWidget.setGeometry(QtCore.QRect(10, 10, 581, 781))
-        self.layoutWidget.setObjectName("layoutWidget")
+    def __init__(self, *args, **kwargs):
+        super(ChatWindow, self).__init__(*args, *kwargs)
+        self.setWindowTitle("Komunikator")
+        self.setWindowIcon(QIcon(self.imgPath + "window_icon.png"))
        
-        self.contentLayout = QtWidgets.QVBoxLayout(self.layoutWidget)
+        self.contentLayout = QtWidgets.QVBoxLayout()
         self.contentLayout.setContentsMargins(0, 0, 0, 0)
         self.contentLayout.setObjectName("contentLayout")
         
-        self.encryptDropDown = QtWidgets.QComboBox(self.layoutWidget)
+        self.encryptDropDown = QtWidgets.QComboBox()
         self.encryptDropDown.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.encryptDropDown.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
         self.encryptDropDown.setStyleSheet(encryptDropDownStyle)
@@ -52,7 +38,7 @@ class Ui_Dialog(object):
         self.areaScrollBar = QtWidgets.QScrollBar()
         self.areaScrollBar.setStyleSheet(scrollBarStyle)
 
-        self.messagesArea = QtWidgets.QTextBrowser(self.layoutWidget)
+        self.messagesArea = QtWidgets.QTextBrowser()
         self.messagesArea.setStyleSheet(messagesAreaStyle)
         self.messagesArea.setFixedHeight(650)
         self.messagesArea.setObjectName("messagesArea")
@@ -65,7 +51,7 @@ class Ui_Dialog(object):
         self.inputScrollBar = QtWidgets.QScrollBar()
         self.inputScrollBar.setStyleSheet(scrollBarStyle)
         
-        self.messageInput = QtWidgets.QTextEdit(self.layoutWidget)
+        self.messageInput = QtWidgets.QTextEdit()
         self.messageInput.setMinimumSize(QtCore.QSize(470, 60))
         self.messageInput.setMaximumSize(QtCore.QSize(470, 60))
         self.messageInput.setToolTip("")
@@ -74,7 +60,7 @@ class Ui_Dialog(object):
         self.messageInput.setVerticalScrollBar(self.inputScrollBar)
         self.bottomLayout.addWidget(self.messageInput, alignment=QtCore.Qt.AlignLeft)
         
-        self.sendButton = QtWidgets.QPushButton(self.layoutWidget)
+        self.sendButton = QtWidgets.QPushButton()
         self.sendButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor)) #hover effect
         self.sendButton.setMinimumSize(QtCore.QSize(100, 30))
         self.sendButton.setMaximumSize(QtCore.QSize(100, 30))
@@ -85,26 +71,25 @@ class Ui_Dialog(object):
         self.contentLayout.addLayout(self.bottomLayout)
    
         self.sendButton.setCheckable(True) 
-
-        #methods mapping
-        Ui_Dialog.handleClick = handleClick
-        Ui_Dialog.handleItemDropdown = handleItemDropdown
-
-        self.sendButton.clicked.connect(self.handleClick)
+        self.sendButton.setText("Wyślij")
+        self.sendButton.clicked.connect(self.handleSendClick)
         self.encryptDropDown.activated[str].connect(self.handleItemDropdown)
 
-        self.retranslateUi(Dialog)
+        self.mainLayout = QtWidgets.QVBoxLayout()
+        self.mainLayout.addLayout(self.contentLayout)
 
-    def retranslateUi(self, Dialog):
-        _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Komunikator"))
-        self.sendButton.setText("Wyślij")
+        mainW = QWidget()
+        mainW.setLayout(self.mainLayout)
+        self.setCentralWidget(mainW)
 
-if __name__ == "__main__": 
-    app = QtWidgets.QApplication(sys.argv)
-    
-    Dialog = QtWidgets.QDialog()
-    ui = Ui_Dialog()
-    ui.setupUi(Dialog)
-    Dialog.show()
-    sys.exit(app.exec_())
+    def handleSendClick(self):
+        self.messagesArea.append(self.messageInput.toPlainText())
+        self.messageInput.clear()
+
+    def handleItemDropdown(self):
+        pass
+
+    def open(self):
+        self.setFixedSize(600, 800)
+        self.setStyleSheet(dialogStyle)
+        self.show()

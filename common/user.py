@@ -1,5 +1,5 @@
 class User:
-    def __init__(self, conn, name, addr):
+    def __init__(self, conn, addr):
         self.conn = conn
         self.addr = addr
     

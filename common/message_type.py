@@ -5,5 +5,5 @@ class MessageType(enum.Enum):
     LIST = 1
     QUIT = 2
     GIVE = 3
-    OK = 4
+    SPOX = 4
     DENY = 5

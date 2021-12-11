@@ -38,37 +38,42 @@ class Server(object):
                 self.is_running = False
                 break
 
-    def message_handler(self, conn, addr):
-        running = True
-        username = ''
-        while running:
-            user = User(conn, addr)
-            msg = Message('UTF-8')
-            data = msg.receive(conn)
-            print(data)
-            if len(data) >= 1:
-                type = msg.identify_message_type(data[0])
-                if type is MessageType.JOIN:
-                    username = data[1]
-                    self.active_users[username] = user
-                    msg.send(MessageType.SPOX.name, conn)
-                elif type is MessageType.LIST:
-                    list_content = MessageType.LIST.name
-                    for name in self.active_users.keys():
-                        list_content = list_content + ':' + name
-                    msg.send(list_content, conn)
-                elif type is MessageType.GIVE:
-                    username_to_map = data[1]
-                    if username_to_map in self.active_users.keys():
-                        ip_addr = self.active_users[username_to_map].get_ip_address()
-                        message_content = MessageType.GIVE.name + ':' + username_to_map + ':' + ip_addr[0] + ':' + str(ip_addr[1])
-                        msg.send(message_content, conn)
+    def message_handler(self, conn : socket, addr):
+        try:
+            running = True
+            username = ''
+            while running:
+                user = User(conn, addr)
+                msg = Message('UTF-8')
+                data = msg.receive(conn)
+                print(data)
+                if len(data) >= 1:
+                    type = msg.identify_message_type(data[0])
+                    if type is MessageType.JOIN:
+                        username = data[1]
+                        self.active_users[username] = user
+                        msg.send(MessageType.SPOX.name, conn)
+                    elif type is MessageType.LIST:
+                        list_content = MessageType.LIST.name
+                        for name in self.active_users.keys():
+                            list_content = list_content + ':' + name
+                        msg.send(list_content, conn)
+                    elif type is MessageType.GIVE:
+                        username_to_map = data[1]
+                        if username_to_map in self.active_users.keys():
+                            ip_addr = self.active_users[username_to_map].get_ip_address()
+                            message_content = MessageType.GIVE.name + ':' + username_to_map + ':' + ip_addr[0] + ':' + str(ip_addr[1])
+                            msg.send(message_content, conn)
+                        else:
+                            msg.send(MessageType.DENY.name, conn)
+                    elif type is MessageType.QUIT:
+                        if (username != '') and (username in self.active_users.keys()):
+                            self.active_users.pop(username)
+                            msg.send(MessageType.SPOX.name, conn)
+                            conn.close()
+                            running = False
                     else:
                         msg.send(MessageType.DENY.name, conn)
-                elif type is MessageType.QUIT:
-                    if (username != '') and (username in self.active_users.keys()):
-                        self.active_users.pop(username)
-                        msg.send(MessageType.SPOX.name, conn)
-                        running = False
-                else:
-                    msg.send(MessageType.DENY.name, conn)
+        except socket.error as err:
+            if username in self.active_users.keys():
+                self.active_users.pop(username)

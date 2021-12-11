@@ -41,7 +41,7 @@ encryptDropDownStyle = ("QComboBox{\n"
 "  \n"
 "}\n""")
 
-messagesAreaStyle = ("QTextBrowser#messagesArea\n"
+messagesAreaStyle = ("QTextBrowser\n"
 "{\n"
 "    font: 12pt \"Segoe UI Emoji\";\n"
 "    background-color: #E8F0F2;\n"
@@ -108,7 +108,7 @@ sendButtonStyle = ("QPushButton\n"
 "    color: #053742;\n"
 "}\n""")
 
-connectButtonStyle = ("QPushButton\n"
+buttonStyle = ("QPushButton\n"
 "{\n"
 "    font: 8pt \"Segoe UI Emoji\";\n"
 "    color: #053742;\n"
@@ -180,3 +180,22 @@ startBtnStopStyle = ("QPushButton\n"
 "    background-color: #b7094c;\n"
 "    border: 5px solid #a01a58;\n"
 "}\n""")
+
+usersAreaStyle = ("QListWidget\n"
+"{\n"
+"    font: 12pt \"Segoe UI Emoji\";\n"
+"    background-color: #E8F0F2;\n"
+"    radius: 12px;\n"
+"    border-radius: 8px;\n"
+"    border: 3px solid #A2DBFA;\n"
+"    padding-left: 10px;\n"
+"    color: #053742;\n"
+"}\n""")
+
+phonebookLabelStyle = ("QLabel{\n"
+"    font: 14pt \"Segoe UI Emoji\";\n"
+"    color: #fff;\n"
+"    text-align: left;\n"
+"    margin-left: -200px;    \n"
+"}\n"
+"")

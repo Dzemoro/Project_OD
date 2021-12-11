@@ -1,4 +1,5 @@
 import sys, path, os, asyncio, threading
+from usernames import is_safe_username
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -6,6 +7,7 @@ from PyQt5 import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from stylesheets import *
 from phonebookGui import *
@@ -25,6 +27,7 @@ class LoginWindow(QMainWindow):
         self.ipLabel = QtWidgets.QLabel()
         self.ipLabel.setFixedSize(QtCore.QSize(50, 30))
         self.ipLabel.setStyleSheet(labelStyle)
+        self.ipLabel.setText("IP:")
         self.ipLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.ipLabel)
         
         self.ipInput = QtWidgets.QLineEdit()
@@ -39,6 +42,7 @@ class LoginWindow(QMainWindow):
         self.portLabel = QtWidgets.QLabel()
         self.portLabel.setFixedSize(QtCore.QSize(50, 30))
         self.portLabel.setStyleSheet(labelStyle)
+        self.portLabel.setText("Port:")
         self.portLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.portLabel)
         
         self.portInput = QtWidgets.QLineEdit()
@@ -53,6 +57,7 @@ class LoginWindow(QMainWindow):
         self.nickLabel = QtWidgets.QLabel()
         self.nickLabel.setFixedSize(QtCore.QSize(50, 30))
         self.nickLabel.setStyleSheet(labelStyle)
+        self.nickLabel.setText("Nick:")
         self.nickLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.nickLabel)
         
         self.nickInput = QtWidgets.QLineEdit()
@@ -63,14 +68,9 @@ class LoginWindow(QMainWindow):
         
         self.startBtn = QtWidgets.QPushButton()
         self.startBtn.setFixedSize(QtCore.QSize(120, 40))
-        self.startBtn.setStyleSheet(startBtnStartStyle)
-        self.startBtn.clicked.connect(self.handleLoginClick)
-        
-        self.ipLabel.setText("IP:")
-        self.portLabel.setText("Port:")
-        self.nickLabel.setText("Nick:")
+        self.startBtn.setStyleSheet(buttonStyle)
         self.startBtn.setText("DOŁĄCZ")
-        self.startBtn.setCheckable(True) 
+        self.startBtn.clicked.connect(self.handleLoginClick)
 
         self.inputsLayoutW = QWidget()
         self.inputsLayoutW.setLayout(self.inputsLayout)
@@ -85,21 +85,58 @@ class LoginWindow(QMainWindow):
         self.setCentralWidget(mainW)
 
     def handleLoginClick(self):
-        # TODO Rzeczy różne niestworzone
-        if True:
-            self.phonebookWindow = PhonebookWindow()
-            self.phonebookWindow.open()
-            self.close()
+        if self.checkInputs():
+            # TODO Rzeczy różne niestworzone
+            if True:
+                self.phonebookWindow = PhonebookWindow()
+                self.phonebookWindow.myUsername = self.nickInput.text()
+                self.phonebookWindow.open()
+                self.close()
 
     def open(self):
         self.setFixedSize(341, 210)
         self.setStyleSheet(dialogStyle)
         self.show()
 
+    def checkInputs(self):
+        # return True do usunięcia potem
+        return True
+
+        if self.checkPort(self.portInput.text()) is not True and self.checkIp(self.ipInput.text()) is not True and self.checkNick(self.nickInput.text()) is not True:    
+            self.portInput.setText("Wrong port number!")
+            self.ipInput.setText("Wrong IP address!")
+            self.nickInput.setText("Wrong nickname!")     
+            return False
+        elif self.checkIp(self.ipInput.text()) is not True: 
+            self.ipInput.setText("Wrong IP address!")  
+            return False
+        elif self.checkPort(self.portInput.text()) is not True:  
+            self.portInput.setText("Wrong port number!")
+            return False
+        elif self.checkNick(self.nickInput.text()) is not True:
+            self.nickInput.setText("Wrong nickname!")     
+            return False
+        return True
+
+    def checkIp(self, ipAddr):
+        def partCheck(ipAddr):
+            try: return str(int(ipAddr)) == ipAddr and 0 <= int(ipAddr) <= 255
+            except: return False
+        if ipAddr.count(".") == 3 and all(partCheck(i) for i in ipAddr.split(".")):
+            return True
+
+    def checkPort(self, port):
+        if port == "":
+            return False
+        if all(d.isdigit() for d in port): # and (int(port) >= 29200 and int(port) <= 65000):
+            return True
+        return False
+
+    def checkNick(self, nick):
+        return is_safe_username(nick)
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-
     window = LoginWindow()
     window.open()
-
     app.exec_()

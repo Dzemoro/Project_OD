@@ -86,11 +86,12 @@ class ChatWindow(QMainWindow):
 
         self.myUsername = ""
         self.friendUsername = ""
-        self.lastMessageAuthor = ""
+        self.lastMessageAuthorIsMe = False
 
     def handleSendClick(self):
-        # TODO Rzeczy różne niestworzone
-        self.printMessage(self.myUsername, self.messageInput.toPlainText())
+        if self.messageInput.toPlainText() and not self.messageInput.toPlainText().isspace():
+            # TODO Rzeczy różne niestworzone
+            self.printMessage(self.myUsername, self.messageInput.toPlainText())
         self.messageInput.clear()
 
     def handleDisconnectClick(self):
@@ -103,22 +104,27 @@ class ChatWindow(QMainWindow):
 
     def handleItemDropdown(self, encryptType):
         # TODO Rzeczy różne niestworzone
-        info = "<span style=\"color:#FF0000;\" >"
-        info += "Zmieniono szyfrowanie na: " + str(encryptType)
-        info += "</span>"
-        self.messagesArea.append(info)
+        self.printInfo("Zmieniono szyfrowanie na: " + str(encryptType))
 
     def printMessage(self, sender, message):
-        if (self.lastMessageAuthor != str(sender)):
-            username = "<span style=\"color:#0000FF;\" >"
+        if not self.lastMessageAuthorIsMe:
+            username = "<span style=\"color:#FFBC97;\" >"
             username += str(sender)
             username += "</span>"
             self.messagesArea.append(username)
-            self.lastMessageAuthor = str(sender)
+            self.lastMessageAuthorIsMe = True
 
         self.messagesArea.append(str(message))
+    
+    def printInfo(self, message):
+        info = "<span style=\"color:#FFBC97;\" >"
+        info += "--- "+str(message)+" ---"
+        info += "</span>"
+        self.messagesArea.append(info)
+        self.lastMessageAuthorIsMe = False
 
     def open(self):
         self.setFixedSize(600, 800)
         self.setStyleSheet(dialogStyle)
+        self.printInfo("Połączono z " + str(self.friendUsername))
         self.show()

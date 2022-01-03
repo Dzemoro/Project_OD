@@ -1,4 +1,6 @@
 import sys, path, os, asyncio, threading
+import client
+
 from usernames import is_safe_username
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -10,6 +12,7 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from stylesheets import *
+
 from phonebookGui import *
 
 class LoginWindow(QMainWindow):
@@ -86,7 +89,13 @@ class LoginWindow(QMainWindow):
 
     def handleLoginClick(self):
         if self.checkInputs():
-            # TODO Rzeczy różne niestworzone
+            client.conn = client.context.wrap_socket(client.client, server_hostname=self.ipInput.text())
+            client.conn.connect((self.ipInput.text(),int(self.portInput.text()))) 
+            msg = "JOIN " + self.nickInput.text()
+            client.conn.send(msg.encode())
+            receive = client.conn.recv(1024).decode()
+            print(receive)
+            # TODO Rzeczy różne niestworzone 
             if True:
                 self.phonebookWindow = PhonebookWindow()
                 self.phonebookWindow.myUsername = self.nickInput.text()
@@ -99,7 +108,7 @@ class LoginWindow(QMainWindow):
         self.show()
 
     def checkInputs(self):
-        # return True do usunięcia potem
+        # TODO sprawdzanie ip portu nicku
         return True
 
         if self.checkPort(self.portInput.text()) is not True and self.checkIp(self.ipInput.text()) is not True and self.checkNick(self.nickInput.text()) is not True:    

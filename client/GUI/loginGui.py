@@ -1,7 +1,8 @@
 import sys, path, os, asyncio, threading
-import client
 
 from usernames import is_safe_username
+
+from client import Client
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -89,18 +90,25 @@ class LoginWindow(QMainWindow):
 
     def handleLoginClick(self):
         if self.checkInputs():
-            client.conn = client.context.wrap_socket(client.client, server_hostname=self.ipInput.text())
-            client.conn.connect((self.ipInput.text(),int(self.portInput.text()))) 
-            msg = "JOIN " + self.nickInput.text()
+            client = Client(self.ipInput.text(),int(self.portInput.text()))
+
+            # ip_temp = "127.0.0.1"
+            # port_temp = 60000
+            # client = Client(ip_temp, port_temp)
+
+            msg = "JOIN:" + self.nickInput.text()
             client.conn.send(msg.encode())
             receive = client.conn.recv(1024).decode()
-            print(receive)
-            # TODO Rzeczy różne niestworzone 
-            if True:
+            # TODO deny, sprawdzic czy serio dziala
+            if receive == 'SPOX':
                 self.phonebookWindow = PhonebookWindow()
                 self.phonebookWindow.myUsername = self.nickInput.text()
+                self.phonebookWindow.client = client
                 self.phonebookWindow.open()
                 self.close()
+            elif receive == 'DENY':
+                pass
+
 
     def open(self):
         self.setFixedSize(341, 210)
@@ -108,9 +116,6 @@ class LoginWindow(QMainWindow):
         self.show()
 
     def checkInputs(self):
-        # TODO sprawdzanie ip portu nicku
-        return True
-
         if self.checkPort(self.portInput.text()) is not True and self.checkIp(self.ipInput.text()) is not True and self.checkNick(self.nickInput.text()) is not True:    
             self.portInput.setText("Wrong port number!")
             self.ipInput.setText("Wrong IP address!")

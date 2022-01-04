@@ -1,5 +1,4 @@
 import sys, os
-
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from PyQt5 import *
@@ -8,6 +7,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from client import Client
 from stylesheets import *
 from chatGui import *
 
@@ -77,26 +77,48 @@ class PhonebookWindow(QMainWindow):
         self.myUsername = ""
 
     def handleLogoutClick(self):
-        # TODO Rzeczy różne niestworzone
-        import loginGui
-        self.loginWindow = loginGui.LoginWindow()
-        self.loginWindow.open()
-        self.close()
+        msg = "QUIT"
+        self.client.conn.send(msg.encode())
+        received = self.client.conn.recv(1024).decode()
+        if received == "SPOX":
+            import loginGui
+            self.loginWindow = loginGui.LoginWindow()
+            self.loginWindow.open()
+            self.close()
 
     def handleRefreshClick(self):
-        # TODO Rzeczy różne niestworzone
-        self.addUsersToList("Dellor")
-        self.addUsersToList(["Marcinek", "Stempel", "Konigin"])
+        msg = "LIST"
+        self.client.conn.send(msg.encode())
+        received = self.client.conn.recv(1024).decode()
+        users = received.split(":")
+        del users[0]
+        self.addUsersToList(users)
 
     def handleConnectClick(self):
         if len(self.usersArea.selectedItems()) == 1:
+            chosen_friend_name = str(self.usersArea.selectedItems()[0].text())
+            msg = "GIVE:" + chosen_friend_name
+            self.client.conn.send(msg.encode())
+
+            received = self.client.conn.recv(1024).decode()
+            friend_params = received.split(":")
+            received_message_type = friend_params[0]
+
             # TODO Rzeczy różne niestworzone
-            if True:
+            if received_message_type == "GIVE":
+                friends_ip = friend_params[2]
+                friends_port = friend_params[3]
+                #friend = Client(friends_ip, friends_port)
+
                 self.chatWindow = ChatWindow()
+                #self.chatWindow.friend = friend
                 self.chatWindow.myUsername = self.myUsername
-                self.chatWindow.friendUsername = str(self.usersArea.selectedItems()[0].text())
+                self.chatWindow.friendUsername = friend_params[1]
+                self.chatWindow.client = self.client
                 self.chatWindow.open()
                 self.close()
+            elif received_message_type == "DENY": #TODO deny ogarnac
+                pass
 
     def setMyUsername(self):
         self.titleLabel.setText("Witaj, " + str(self.myUsername) + "!\nZ kim chcesz porozmawiać?")
@@ -106,9 +128,12 @@ class PhonebookWindow(QMainWindow):
         self.setStyleSheet(dialogStyle)
         if self.myUsername != "":
             self.setMyUsername()
+        self.handleRefreshClick()
         self.show()
+        
 
     def addUsersToList(self, usernames):
+        self.usersArea.clear()
         if isinstance(usernames, str):
             usernames=[usernames]
         self.usersArea.addItems(usernames)

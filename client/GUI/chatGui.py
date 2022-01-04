@@ -2,6 +2,7 @@ import sys, os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from client import Client
 from PyQt5 import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -36,8 +37,10 @@ class ChatWindow(QMainWindow):
         self.encryptDropDown.setEditable(False)
         self.encryptDropDown.setObjectName("encryptDropDown")
         self.encryptDropDown.addItem("Bez szyfrowania")
-        self.encryptDropDown.addItem("Inna opcja")
-        self.encryptDropDown.addItem("Inna opcja 2")
+        self.encryptDropDown.addItem("Fernet") #jest taki likier dx 
+        self.encryptDropDown.addItem("RagBaby") #szmaciane dziecko
+        self.encryptDropDown.addItem("Szyfr Cezara")
+        self.encryptDropDown.addItem("Szyfr Polibiusza")
         # self.encryptDropDown.setMaxVisibleItems(11)
         self.encryptDropDown.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.encryptDropDown.view().setCursor(QCursor(QtCore.Qt.PointingHandCursor))
@@ -99,6 +102,7 @@ class ChatWindow(QMainWindow):
         import phonebookGui
         self.phonebookWindow = phonebookGui.PhonebookWindow()
         self.phonebookWindow.myUsername = self.myUsername
+        self.phonebookWindow.client = self.client
         self.phonebookWindow.open()
         self.close()
 

@@ -6,7 +6,6 @@ class PolybiusSquareCipher:
         abc = 'AĄBCĆDEĘFGHIJKLŁMNŃOÓPQRSŚTUVWXYZŹŻ'
         abc += 'aąbcćdeęfghijklłmnńoópqrsśtuvwxyzźż'
         abc += '0123456789 '
-        print(abc)
         arr_el = []
         arr = []
         row = []
@@ -51,17 +50,23 @@ class PolybiusSquareCipher:
             letter = arr[row-1][col-1]
             output+=str(letter)
         return output
+
+    def gen_key(self):
+        key_length = random.randint(2,30)
+        key = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(key_length)).strip()
+        return key
     
     def test(self):
-        key_length = random.randint(10,20)
         text_length = random.randint(100,200)
-        key = ''.join(random.SystemRandom().choice(string.ascii_uppercase) for _ in range(key_length)).strip()
-        text = ''.join(random.SystemRandom().choice(string.ascii_uppercase + ' ') for _ in range(text_length)).strip()
+        key = self.gen_key()
+        text = ''.join(random.SystemRandom().choice(string.ascii_letters + ' ') for _ in range(text_length)).strip()
+
+        print(text)
 
         encrypted_text = self.encrypt(text, key)
         decrypted_text = self.decrypt(encrypted_text, key)
 
         print(decrypted_text)
     
-polybius = PolybiusSquareCipher()
-polybius.test()
+#polybius = PolybiusSquareCipher()
+#polybius.test()

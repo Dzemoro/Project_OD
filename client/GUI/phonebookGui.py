@@ -1,4 +1,10 @@
-import sys, os
+import sys, os, threading
+
+from encrypting.fernet import FernetCipher
+from encrypting.caesarCipher import CaesarCipher
+from encrypting.polybiusSquareCipher import PolybiusSquareCipher
+from encrypting.RagBabyCipher import RagBabyCipher
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from PyQt5 import *
@@ -70,6 +76,11 @@ class PhonebookWindow(QMainWindow):
         self.mainLayout.addWidget(self.upperLayoutW)
         self.mainLayout.addWidget(self.usersArea)
 
+        self.caesar = CaesarCipher()
+        self.fernet = FernetCipher()
+        self.polybius = PolybiusSquareCipher()
+        self.rag_baby = RagBabyCipher()
+
         mainW = QWidget()
         mainW.setLayout(self.mainLayout)
         self.setCentralWidget(mainW)
@@ -129,8 +140,61 @@ class PhonebookWindow(QMainWindow):
         if self.myUsername != "":
             self.setMyUsername()
         self.handleRefreshClick()
+        receiveThread = threading.Thread(target=self.receiveClientData)
+        receiveThread.start()
         self.show()
-        
+
+    def receiveClientData(self):
+            while True:
+                try:
+                    data = self.s.recv(1024)
+                    if bytes("CONN:".encode('utf-8')) in data:
+                        #popup z pytaniem o polaczenie 
+
+                        self.parent.fillDropdown(data.decode('utf-8'), True)
+                except Exception as e:
+                    self.handleServerDis()
+                    break
+                
+    def receiveInitialClientData(self):
+        while True:
+            try:
+                data = self.s.recv(1024)
+                if bytes("CONN:".encode('utf-8')) in data:
+                    #popup z pytaniem o polaczenie 
+
+                    self.parent.fillDropdown(data.decode('utf-8'), True)
+            except Exception as e:
+                self.handleServerDis()
+                break
+
+    def exchange_keys(self):
+        caesar_key = self.caesar.gen_key()
+        fernet_key = self.fernet.gen_key()
+        polybius_key = self.polybius.gen_key()
+        rag_baby_key = self.rag_baby.gen_key()
+        #keys = str(caesar_key) + ":" + str(fernet_key) + ":" + str(polybius_key) + ":" + str(rag_baby_key)
+
+    def sendDataToClient(self):
+        while True:
+            try:
+                if self.sendFlag:
+                    data = self.recordingStream.read(1024)
+                    self.s.sendall(data)
+            except:
+                self.handleServerDis()
+                break
+
+    def sendInitialDataToClient(self, ipaddr, port, nickname):
+        try:
+            #conn
+            if self.sendFlag:
+                data = self.recordingStream.read(1024)
+                self.s.sendall(data)
+        except:
+            self.handleServerDis()
+            
+
 
     def addUsersToList(self, usernames):
         self.usersArea.clear()

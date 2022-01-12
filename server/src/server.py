@@ -7,7 +7,7 @@ import socket, threading, ssl
 import os
 from common.message_type import MessageType
 from common.user import User
-from message import Message
+from common.message import Message
 
 class Server(object):
     def __init__(self, ip, port) -> None:

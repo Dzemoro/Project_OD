@@ -51,7 +51,7 @@ class Server(object):
                     type = msg.identify_message_type(data[0])
                     if type is MessageType.JOIN:
                         username = data[1]
-                        self.active_users[username] = User(conn, (data[2], data[3]))
+                        self.active_users[username] = User(conn, (data[2], int(data[3])))
                         msg.send(MessageType.SPOX.name, conn)
                     elif type is MessageType.LIST:
                         list_content = MessageType.LIST.name

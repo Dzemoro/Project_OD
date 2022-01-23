@@ -2,7 +2,7 @@ import sys, os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from client import Client
+from client import *
 from PyQt5 import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *

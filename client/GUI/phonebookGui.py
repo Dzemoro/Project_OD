@@ -1,4 +1,4 @@
-import sys, os, threading, socket
+import sys, os, threading, socket, time
 
 
 from encrypting.fernet import FernetCipher
@@ -14,7 +14,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from client import Client
+from client import *
 from stylesheets import *
 from chatGui import *
 
@@ -89,10 +89,6 @@ class PhonebookWindow(QMainWindow):
         self.myUsername = ""
 
 
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock.bind((self.client.ip, self.client.port))
-
     def handleLogoutClick(self):
         msg = "QUIT"
         self.client.conn.send(msg.encode())
@@ -126,8 +122,10 @@ class PhonebookWindow(QMainWindow):
             if received_message_type == "GIVE":
                 friends_ip = friend_params[2]
                 friends_port = friend_params[3]
-                friend = Client(friends_ip, friends_port)
-                friend.conn.send("CONN:" + self.myUsername)
+                message = 'CONN:' + self.myUsername
+                message_bytes = str.encode(message)
+
+                self.client.conn.send(message_bytes)
 
             elif received_message_type == "DENY": #TODO deny ogarnac
                 pass
@@ -148,13 +146,18 @@ class PhonebookWindow(QMainWindow):
         self.setStyleSheet(dialogStyle)
         if self.myUsername != "":
             self.setMyUsername()
+
+        threading.Thread(target=self.client.receive).start()
+        time.sleep(2)
+                        
         self.handleRefreshClick()
-        receiveThread = threading.Thread(target=self.receiveClientData)
-        receiveThread.start()
         self.show()
 
 
     def receiveClientData(self):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.bind(('', 0))
 
         while True:
             try:

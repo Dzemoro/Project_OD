@@ -1,8 +1,10 @@
 import sys, path, os, asyncio, threading
+from time import time
+import time
 
 from usernames import is_safe_username
 
-from client import Client
+from client import *
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -91,15 +93,13 @@ class LoginWindow(QMainWindow):
     def handleLoginClick(self):
         if self.checkInputs():
             client = Client(self.ipInput.text(),int(self.portInput.text()))
+            client.connect(self.ipInput.text(),int(self.portInput.text()))
 
-            # ip_temp = "127.0.0.1"
-            # port_temp = 60000
-            # client = Client(ip_temp, port_temp)
-
-            msg = "JOIN:" + self.nickInput.text()
+            msg = "JOIN:" + self.nickInput.text() + ":" + client.ip + ":" + str(client.clientHost.server.getsockname()[1])
             client.conn.send(msg.encode())
-            receive = client.conn.recv(1024).decode()
-            # TODO deny, sprawdzic czy serio dziala
+
+            receive = client.conn.recv(1024).decode()  
+
             if receive == 'SPOX':
                 self.phonebookWindow = PhonebookWindow()
                 self.phonebookWindow.myUsername = self.nickInput.text()
@@ -108,7 +108,6 @@ class LoginWindow(QMainWindow):
                 self.close()
             elif receive == 'DENY':
                 pass
-
 
     def open(self):
         self.setFixedSize(341, 210)

@@ -103,7 +103,7 @@ class PhonebookWindow(QMainWindow):
         msg = "LIST"
         self.client.conn.send(msg.encode('utf-8'))
         received = self.client.conn.recv(1024)
-        users = received.split(":")
+        users = received.decode().split(":")
         del users[0]
         self.addUsersToList(users)
 
@@ -150,7 +150,7 @@ class PhonebookWindow(QMainWindow):
 
     def receiveServerData(self):
         while True:
-
+            time.sleep(500)
             received = self.client.conn.recv(1024)
             if received != b'':
 

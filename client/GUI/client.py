@@ -7,7 +7,7 @@ class Client:
         self.port = port
 
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-        self.context.load_cert_chain(certfile="C:\\Users\\mciec\\Desktop\\Studia\\OD\\Project_OD\\server\\src\\cert.pem")
+        self.context.load_cert_chain(certfile="cert.pem")
         self.context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1
         self.context.set_ciphers('AES256+ECDH:AES256+EDH')
 

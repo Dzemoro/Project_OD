@@ -9,6 +9,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from encrypting.fernet import FernetCipher
+from encrypting.caesarCipher import CaesarCipher
+from encrypting.polybiusSquareCipher import PolybiusSquareCipher
+from encrypting.RagBabyCipher import RagBabyCipher
+
 from stylesheets import *
 
 class ChatWindow(QMainWindow):
@@ -39,8 +44,8 @@ class ChatWindow(QMainWindow):
         self.encryptDropDown.addItem("Bez szyfrowania")
         self.encryptDropDown.addItem("Fernet") #jest taki likier dx 
         self.encryptDropDown.addItem("RagBaby") #szmaciane dziecko
-        self.encryptDropDown.addItem("Szyfr Cezara")
-        self.encryptDropDown.addItem("Szyfr Polibiusza")
+        self.encryptDropDown.addItem("Szyfr Cezara") #krul i wladca
+        self.encryptDropDown.addItem("Szyfr Polibiusza") #kogo 
         # self.encryptDropDown.setMaxVisibleItems(11)
         self.encryptDropDown.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.encryptDropDown.view().setCursor(QCursor(QtCore.Qt.PointingHandCursor))
@@ -91,11 +96,43 @@ class ChatWindow(QMainWindow):
         self.friendUsername = ""
         self.lastMessageAuthorIsMe = False
 
+        self.caesar = CaesarCipher()
+        self.fernet = FernetCipher()
+        self.polybius = PolybiusSquareCipher()
+        self.rag_baby = RagBabyCipher()
+
+        self.my_caesarKey = ""
+        self.my_fernetKey = ""
+        self.my_polybiusKey = ""
+        self.my_ragbabyKey = ""            
+        
+        self.friend_caesarKey = ""
+        self.friend_fernetKey = ""
+        self.friend_polybiusKey = ""
+        self.friend_ragbabyKey = ""
+
     def handleSendClick(self):
         if self.messageInput.toPlainText() and not self.messageInput.toPlainText().isspace():
-            # TODO Rzeczy różne niestworzone
+
+            message_content = self.messageInput.toPlainText()
+            encrypted_message, encrypt_type = self.encrypt_message(message_content, str(self.encryptDropDown.currentText())) ##castowanie dla jaj
+            print(message_content)
+            msg = "MESS:" + self.friendUsername + ":" + encrypted_message + ":" + encrypt_type
+            self.client.conn.send(msg.encode('utf-8'))
+
             self.printMessage(self.myUsername, self.messageInput.toPlainText())
         self.messageInput.clear()
+
+    def encrypt_message(self, message_content, encode_type):
+
+        if encode_type == "Szyfr Cezara":
+            return self.caesar.encrypt(key = self.my_caesarKey, message = message_content), "CA"
+        elif encode_type == "Fernet":
+            return self.fernet.encrypt(key = self.my_fernetKey, message = message_content), "FE"
+        elif encode_type == "Szyfr Polibiusza":
+            return self.polybius.encrypt(key = self.my_polybiusKey, word = message_content), "PO"
+        elif encode_type == "RagBaby":
+            return self.rag_baby.encrypt(key = self.my_ragbabyKey, text = message_content), "RA"
 
     def handleDisconnectClick(self):
         # TODO Rzeczy różne niestworzone

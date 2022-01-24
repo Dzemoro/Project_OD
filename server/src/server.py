@@ -9,6 +9,7 @@ from common.message_type import MessageType
 from common.user import User
 from common.message import Message
 
+
 class Server(object):
     def __init__(self, ip, port) -> None:
         super().__init__()
@@ -71,20 +72,39 @@ class Server(object):
                     elif type is MessageType.MESS:
                         target_username = data[1]
                         target_user = self.active_users[target_username] 
-                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3]
+                        message = data[0] + ":" + username + ":" + data[2] #    + ":" + data[3] #mess:target:content:szyfrjaki
                         msg.send(message, target_user.conn)                        
 
                     elif type is MessageType.KEYS:
                         target_username = data[1]
                         target_user = self.active_users[target_username] 
-                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] + ":" + data[4] + ":" + data[5] #mess:target:cezar:fernet:polybius:rag_baby
+                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] + ":" + data[4] + ":" + data[5] #keys:target:cezar:fernet:polybius:rag_baby
                         msg.send(message, target_user.conn)  
 
-                    elif type is (MessageType.CONN or MessageType.SPOX):
+                    elif type is MessageType.KEYR:
+                        target_username = data[1]
+                        target_user = self.active_users[target_username] 
+                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] + ":" + data[4] + ":" + data[5] #keys:target:cezar:fernet:polybius:rag_baby
+                        msg.send(message, target_user.conn)  
+
+
+                    elif type is MessageType.CONN:
+                        print(" ---conn od "+ username)
                         target_username = data[1]
                         target_user = self.active_users[target_username] 
                         message = data[0] + ":" + username
+                        print(message)
+
                         msg.send(message, target_user.conn)    
+
+                    elif type is MessageType.CALL:
+                        print(" ---call od "+ username)
+                        target_username = data[1]
+                        target_user = self.active_users[target_username] 
+                        message = data[0] + ":" + username
+                        print(message)
+
+                        msg.send(message, target_user.conn)   
 
                     elif type is MessageType.QUIT:
                         if (username != '') and (username in self.active_users.keys()):

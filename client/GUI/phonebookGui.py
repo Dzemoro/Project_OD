@@ -145,23 +145,25 @@ class PhonebookWindow(QMainWindow):
         self.show()
         receiveThread = threading.Thread(target=self.receiveServerData)
         receiveThread.start()
-        time.sleep(2)
+        time.sleep(3)
         
 
     def receiveServerData(self):
         while True:
-            received = self.client.conn.recv(1024)
-            print(received)
-            message = received.decode('utf-8').split(":")
-            print(message)
 
-            received_message_type = message[0]
-            if received_message_type == "CONN":
-                msg = "SPOX:" + message[1]
-                self.client.conn.send(msg.encode('utf-8'))
-                self.friend_name = message[1]
-                self.openChatWindow() 
-                break    
+            received = self.client.conn.recv(1024)
+            if received != b'':
+
+                message = received.decode('utf-8').split(":")
+                print(message)
+
+                received_message_type = message[0]
+                if received_message_type == "CONN":
+                    msg = "SPOX:" + message[1]
+                    self.client.conn.send(msg.encode('utf-8'))
+                    self.friend_name = message[1]
+                    self.openChatWindow() 
+                    break    
 
     def receiveClientData(self):
 

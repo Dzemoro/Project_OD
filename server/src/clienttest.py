@@ -15,10 +15,7 @@ context.set_ciphers('AES256+ECDH:AES256+EDH')
 conn = context.wrap_socket(client, server_hostname='127.0.0.1')
 
 
-receiveThread = threading.Thread(target=self.receiveServerData)
-receiveThread.start()
-
-if __name__ == "__main__":
+def receiveServerData():
     #conn.bind((HOST, PORT))
     conn.connect(('127.0.0.1',60000))
     run = True
@@ -32,3 +29,7 @@ if __name__ == "__main__":
         else:
             receive = conn.recv(1024)
             print(receive.decode())
+
+
+receiveThread = threading.Thread(target=receiveServerData)
+receiveThread.start()

@@ -92,14 +92,9 @@ class LoginWindow(QMainWindow):
         if self.checkInputs():
             client = Client(self.ipInput.text(),int(self.portInput.text()))
 
-            # ip_temp = "127.0.0.1"
-            # port_temp = 60000
-            # client = Client(ip_temp, port_temp)
-
             msg = "JOIN:" + self.nickInput.text()
             client.conn.send(msg.encode())
             receive = client.conn.recv(1024).decode()
-            # TODO deny, sprawdzic czy serio dziala
             if receive == 'SPOX':
                 self.phonebookWindow = PhonebookWindow()
                 self.phonebookWindow.myUsername = self.nickInput.text()

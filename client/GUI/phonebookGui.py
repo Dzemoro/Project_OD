@@ -1,3 +1,4 @@
+from email import message
 import sys, os, threading, socket
 
 
@@ -88,11 +89,6 @@ class PhonebookWindow(QMainWindow):
 
         self.myUsername = ""
 
-
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock.bind((self.client.ip, self.client.port))
-
     def handleLogoutClick(self):
         msg = "QUIT"
         self.client.conn.send(msg.encode())
@@ -114,20 +110,16 @@ class PhonebookWindow(QMainWindow):
     def handleConnectClick(self):
         if len(self.usersArea.selectedItems()) == 1:
             chosen_friend_name = str(self.usersArea.selectedItems()[0].text())
-            msg = "GIVE:" + chosen_friend_name
+            msg = "CONN:" + chosen_friend_name
             self.client.conn.send(msg.encode())
 
             received = self.client.conn.recv(1024).decode()
-            friend_params = received.split(":")
-            received_message_type = friend_params[0]
-            friends_name = friend_params[1]
+            message = received.split(":")
+            received_message_type = message[0]
 
-            # TODO Rzeczy różne niestworzone
-            if received_message_type == "GIVE":
-                friends_ip = friend_params[2]
-                friends_port = friend_params[3]
-                friend = Client(friends_ip, friends_port)
-                friend.conn.send("CONN:" + self.myUsername)
+            if received_message_type == "SPOX":
+                self.friend_name = message[1]
+                self.openChatWindow()  
 
             elif received_message_type == "DENY": #TODO deny ogarnac
                 pass
@@ -136,6 +128,7 @@ class PhonebookWindow(QMainWindow):
         self.chatWindow = ChatWindow()
         #self.chatWindow.friend = friend
         self.chatWindow.myUsername = self.myUsername
+        self.chatWindow.friendUsername = self.friend_name
         self.chatWindow.client = self.client
         self.chatWindow.open()
         self.close()
@@ -148,11 +141,20 @@ class PhonebookWindow(QMainWindow):
         self.setStyleSheet(dialogStyle)
         if self.myUsername != "":
             self.setMyUsername()
-        self.handleRefreshClick()
-        receiveThread = threading.Thread(target=self.receiveClientData)
-        receiveThread.start()
+        #self.handleRefreshClick()
         self.show()
+        while True:
 
+            received = self.client.conn.recv(1024).decode()
+            message = received.split(":")
+            received_message_type = message[0]
+            if received_message_type == "CONN":
+
+                msg = "SPOX:" + message[1]
+                self.client.conn.send(msg.encode())
+                self.friend_name = message[1]
+                self.openChatWindow() 
+                break
 
     def receiveClientData(self):
 

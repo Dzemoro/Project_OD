@@ -26,6 +26,7 @@ class Server(object):
         self.lock = threading.Lock()
     
     def run(self):
+        print("---Server is running---")
         self.sock.listen(50)
         
         while self.is_running:
@@ -66,6 +67,25 @@ class Server(object):
                             msg.send(message_content, conn)
                         else:
                             msg.send(MessageType.DENY.name, conn)
+
+                    elif type is MessageType.MESS:
+                        target_username = data[1]
+                        target_user = self.active_users[target_username] 
+                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3]
+                        msg.send(message, target_user.conn)                        
+
+                    elif type is MessageType.KEYS:
+                        target_username = data[1]
+                        target_user = self.active_users[target_username] 
+                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] + ":" + data[4] + ":" + data[5] #mess:target:cezar:fernet:polybius:rag_baby
+                        msg.send(message, target_user.conn)  
+
+                    elif type is (MessageType.CONN or MessageType.SPOX):
+                        target_username = data[1]
+                        target_user = self.active_users[target_username] 
+                        message = data[0] + ":" + username
+                        msg.send(message, target_user.conn)    
+
                     elif type is MessageType.QUIT:
                         if (username != '') and (username in self.active_users.keys()):
                             self.active_users.pop(username)

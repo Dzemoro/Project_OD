@@ -1,7 +1,7 @@
 from email import message
 import sys, os, threading, socket
 
-
+import time
 from encrypting.fernet import FernetCipher
 from encrypting.caesarCipher import CaesarCipher
 from encrypting.polybiusSquareCipher import PolybiusSquareCipher
@@ -91,8 +91,8 @@ class PhonebookWindow(QMainWindow):
 
     def handleLogoutClick(self):
         msg = "QUIT"
-        self.client.conn.send(msg.encode())
-        received = self.client.conn.recv(1024).decode()
+        self.client.conn.send(msg.encode('utf-8'))
+        received = self.client.conn.recv(1024).decode('utf-8')
         if received == "SPOX":
             import loginGui
             self.loginWindow = loginGui.LoginWindow()
@@ -101,8 +101,8 @@ class PhonebookWindow(QMainWindow):
 
     def handleRefreshClick(self):
         msg = "LIST"
-        self.client.conn.send(msg.encode())
-        received = self.client.conn.recv(1024).decode()
+        self.client.conn.send(msg.encode('utf-8'))
+        received = self.client.conn.recv(1024)
         users = received.split(":")
         del users[0]
         self.addUsersToList(users)
@@ -111,9 +111,9 @@ class PhonebookWindow(QMainWindow):
         if len(self.usersArea.selectedItems()) == 1:
             chosen_friend_name = str(self.usersArea.selectedItems()[0].text())
             msg = "CONN:" + chosen_friend_name
-            self.client.conn.send(msg.encode())
+            self.client.conn.send(msg.encode('utf-8'))
 
-            received = self.client.conn.recv(1024).decode()
+            received = self.client.conn.recv(1024).decode('utf-8')
             message = received.split(":")
             received_message_type = message[0]
 
@@ -143,18 +143,25 @@ class PhonebookWindow(QMainWindow):
             self.setMyUsername()
         #self.handleRefreshClick()
         self.show()
-        while True:
+        receiveThread = threading.Thread(target=self.receiveServerData)
+        receiveThread.start()
+        time.sleep(2)
+        
 
-            received = self.client.conn.recv(1024).decode()
-            message = received.split(":")
+    def receiveServerData(self):
+        while True:
+            received = self.client.conn.recv(1024)
+            print(received)
+            message = received.decode('utf-8').split(":")
+            print(message)
+
             received_message_type = message[0]
             if received_message_type == "CONN":
-
                 msg = "SPOX:" + message[1]
-                self.client.conn.send(msg.encode())
+                self.client.conn.send(msg.encode('utf-8'))
                 self.friend_name = message[1]
                 self.openChatWindow() 
-                break
+                break    
 
     def receiveClientData(self):
 

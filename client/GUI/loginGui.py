@@ -93,8 +93,8 @@ class LoginWindow(QMainWindow):
             client = Client(self.ipInput.text(),int(self.portInput.text()))
 
             msg = "JOIN:" + self.nickInput.text()
-            client.conn.send(msg.encode())
-            receive = client.conn.recv(1024).decode()
+            client.conn.send(msg.encode('utf-8'))
+            receive = client.conn.recv(1024).decode('utf-8')
             if receive == 'SPOX':
                 self.phonebookWindow = PhonebookWindow()
                 self.phonebookWindow.myUsername = self.nickInput.text()

@@ -1,3 +1,4 @@
+from email import message_from_binary_file
 import sys, os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -8,6 +9,11 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
+
+from encrypting.fernet import FernetCipher
+from encrypting.caesarCipher import CaesarCipher
+from encrypting.polybiusSquareCipher import PolybiusSquareCipher
+from encrypting.RagBabyCipher import RagBabyCipher
 
 from stylesheets import *
 
@@ -37,10 +43,10 @@ class ChatWindow(QMainWindow):
         self.encryptDropDown.setEditable(False)
         self.encryptDropDown.setObjectName("encryptDropDown")
         self.encryptDropDown.addItem("Bez szyfrowania")
-        self.encryptDropDown.addItem("Fernet") #jest taki likier dx 
+        #self.encryptDropDown.addItem("Fernet") #jest taki likier dx 
         self.encryptDropDown.addItem("RagBaby") #szmaciane dziecko
-        self.encryptDropDown.addItem("Szyfr Cezara")
-        self.encryptDropDown.addItem("Szyfr Polibiusza")
+        self.encryptDropDown.addItem("Szyfr Cezara") #krul i wladca
+        self.encryptDropDown.addItem("Szyfr Polibiusza") #kogo 
         # self.encryptDropDown.setMaxVisibleItems(11)
         self.encryptDropDown.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.encryptDropDown.view().setCursor(QCursor(QtCore.Qt.PointingHandCursor))
@@ -89,13 +95,61 @@ class ChatWindow(QMainWindow):
 
         self.myUsername = ""
         self.friendUsername = ""
-        self.lastMessageAuthorIsMe = False
+        self.lastMessageAuthor = ""
+
+        self.caesar = CaesarCipher()
+        self.fernet = FernetCipher()
+        self.polybius = PolybiusSquareCipher()
+        self.rag_baby = RagBabyCipher()
+
+        self.my_caesarKey = ""
+        self.my_fernetKey = ""
+        self.my_polybiusKey = ""
+        self.my_ragbabyKey = ""    
+
+        self.friend_caesarKey = ""
+        self.friend_fernetKey = ""
+        self.friend_polybiusKey = ""
+        self.friend_ragbabyKey = ""        
 
     def handleSendClick(self):
         if self.messageInput.toPlainText() and not self.messageInput.toPlainText().isspace():
-            # TODO Rzeczy różne niestworzone
+
+            message_content = self.messageInput.toPlainText()
+            message_content = message_content.replace(":","")
+            encrypted_message, encrypt_type = self.encrypt_message(message_content, self.encryptDropDown.currentText()) ##castowanie dla jaj
+            print(encrypted_message)
+            msg = "MESS:" + self.friendUsername + ":" + encrypted_message + ":" + encrypt_type
+            self.client.conn.send(msg.encode('utf-8'))
+
             self.printMessage(self.myUsername, self.messageInput.toPlainText())
         self.messageInput.clear()
+
+    def encrypt_message(self, message_content, encode_type):
+
+        if encode_type == "Szyfr Cezara":
+            print(type(self.my_caesarKey))
+            print(self.my_caesarKey)
+            return self.caesar.encrypt(key = int(self.my_caesarKey), message = message_content), "CA"
+
+        elif encode_type == "Fernet":
+            print(type(self.my_fernetKey))
+            print(self.my_fernetKey)
+            return self.fernet.encrypt(key = self.my_fernetKey, message = message_content), "FE"
+
+        elif encode_type == "Szyfr Polibiusza":
+            print(type(self.my_polybiusKey))
+            print(self.my_polybiusKey)
+            return self.polybius.encrypt(key = self.my_polybiusKey, word = message_content), "PO"
+
+        elif encode_type == "RagBaby":
+            print(type(self.my_ragbabyKey))
+            print(self.my_ragbabyKey)
+            return self.rag_baby.encrypt(key = self.my_ragbabyKey, text = message_content), "RA"
+
+        elif encode_type == "Bez szyfrowania":
+
+            return message_content, "NO"
 
     def handleDisconnectClick(self):
         # TODO Rzeczy różne niestworzone
@@ -111,12 +165,12 @@ class ChatWindow(QMainWindow):
         self.printInfo("Zmieniono szyfrowanie na: " + str(encryptType))
 
     def printMessage(self, sender, message):
-        if not self.lastMessageAuthorIsMe:
+        if not self.lastMessageAuthor == sender:
             username = "<span style=\"color:#FFBC97;\" >"
             username += str(sender)
             username += "</span>"
             self.messagesArea.append(username)
-            self.lastMessageAuthorIsMe = True
+            self.lastMessageAuthor = sender
 
         self.messagesArea.append(str(message))
     
@@ -125,7 +179,7 @@ class ChatWindow(QMainWindow):
         info += "--- "+str(message)+" ---"
         info += "</span>"
         self.messagesArea.append(info)
-        self.lastMessageAuthorIsMe = False
+        self.lastMessageAuthor = ""
 
     def open(self):
         self.setFixedSize(600, 800)

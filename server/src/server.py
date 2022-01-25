@@ -7,7 +7,8 @@ import socket, threading, ssl
 import os
 from common.message_type import MessageType
 from common.user import User
-from message import Message
+from common.message import Message
+
 
 class Server(object):
     def __init__(self, ip, port) -> None:
@@ -26,6 +27,7 @@ class Server(object):
         self.lock = threading.Lock()
     
     def run(self):
+        print("---Server is running---")
         self.sock.listen(50)
         
         while self.is_running:
@@ -66,6 +68,44 @@ class Server(object):
                             msg.send(message_content, conn)
                         else:
                             msg.send(MessageType.DENY.name, conn)
+
+                    elif type is MessageType.MESS:
+                        target_username = data[1]
+                        target_user = self.active_users[target_username] 
+                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] #mess:target:content:szyfrjaki
+                        msg.send(message, target_user.conn)                        
+
+                    elif type is MessageType.KEYS:
+                        target_username = data[1]
+                        target_user = self.active_users[target_username] 
+                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] + ":" + data[4] + ":" + data[5] #keys:target:cezar:fernet:polybius:rag_baby
+                        msg.send(message, target_user.conn)  
+
+                    elif type is MessageType.KEYR:
+                        target_username = data[1]
+                        target_user = self.active_users[target_username] 
+                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] + ":" + data[4] + ":" + data[5] #keys:target:cezar:fernet:polybius:rag_baby
+                        msg.send(message, target_user.conn)  
+
+
+                    elif type is MessageType.CONN:
+                        print(" ---conn od "+ username)
+                        target_username = data[1]
+                        target_user = self.active_users[target_username] 
+                        message = data[0] + ":" + username
+                        print(message)
+
+                        msg.send(message, target_user.conn)    
+
+                    elif type is MessageType.CALL:
+                        print(" ---call od "+ username)
+                        target_username = data[1]
+                        target_user = self.active_users[target_username] 
+                        message = data[0] + ":" + username
+                        print(message)
+
+                        msg.send(message, target_user.conn)   
+
                     elif type is MessageType.QUIT:
                         if (username != '') and (username in self.active_users.keys()):
                             self.active_users.pop(username)

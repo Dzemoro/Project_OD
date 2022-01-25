@@ -1,8 +1,10 @@
 #witam
 import random, string
 class RagBabyCipher:
-    def genKey(self, word):
-        alphabet = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZzęąśćż'
+    def gen_key(self):
+        key_length = random.randint(3,40)
+        word = ''.join(random.SystemRandom().choice(string.ascii_letters + ' ') for _ in range(key_length)).strip()
+        alphabet = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZzĘęĄąŚśĆćŻżŹźŁł'
         newWord = ''
         for x in alphabet:
             for y in word:
@@ -45,16 +47,14 @@ class RagBabyCipher:
         return decrypted
 
     def test(self):
-        key_length = random.randint(10,20)
         text_length = random.randint(100,200)
-        key2 = ''.join(random.SystemRandom().choice(string.ascii_uppercase + ' ') for _ in range(key_length)).strip()
-        key = self.genKey(key2)
-        text = ''.join(random.SystemRandom().choice(string.ascii_uppercase + ' ') for _ in range(text_length)).strip()
+        key = self.gen_key()
+        text = ''.join(random.SystemRandom().choice(string.ascii_letters + ' ') for _ in range(text_length)).strip()
 
+        print(text)
         encrypted_text = self.encrypt(text, key)
         decrypted_text = self.decrypt(encrypted_text, key)
-
         print(decrypted_text)
 
-ragbaby = RagBabyCipher()
-ragbaby.test()
+#ragbaby = RagBabyCipher()
+#ragbaby.test()

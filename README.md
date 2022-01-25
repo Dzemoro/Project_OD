@@ -2,6 +2,6 @@
 
 Projekt zakłada implementację klienta oraz serwera.
 
-Komunikacja odbywa się w trybie bez szyfrowania, bądź przy wykorzystaniu jednego z szyfrów: RagBaby, Cezara, Polibiusza lub Fernet.
+Komunikacja odbywa się w trybie bez szyfrowania, bądź przy wykorzystaniu jednego z szyfrów: RagBaby, Cezara, Polibiusza.
 
 Szczególnym tematem projektu jest analiza bezpieczeństwa w opracowanym komunikatorze tekstowym.

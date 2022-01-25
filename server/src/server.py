@@ -72,7 +72,7 @@ class Server(object):
                     elif type is MessageType.MESS:
                         target_username = data[1]
                         target_user = self.active_users[target_username] 
-                        message = data[0] + ":" + username + ":" + data[2] #    + ":" + data[3] #mess:target:content:szyfrjaki
+                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] #mess:target:content:szyfrjaki
                         msg.send(message, target_user.conn)                        
 
                     elif type is MessageType.KEYS:

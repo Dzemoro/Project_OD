@@ -43,7 +43,7 @@ class ChatWindow(QMainWindow):
         self.encryptDropDown.setEditable(False)
         self.encryptDropDown.setObjectName("encryptDropDown")
         self.encryptDropDown.addItem("Bez szyfrowania")
-        self.encryptDropDown.addItem("Fernet") #jest taki likier dx 
+        #self.encryptDropDown.addItem("Fernet") #jest taki likier dx 
         self.encryptDropDown.addItem("RagBaby") #szmaciane dziecko
         self.encryptDropDown.addItem("Szyfr Cezara") #krul i wladca
         self.encryptDropDown.addItem("Szyfr Polibiusza") #kogo 

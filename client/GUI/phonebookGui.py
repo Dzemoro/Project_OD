@@ -103,6 +103,8 @@ class PhonebookWindow(QMainWindow):
         self.timer1.timeout.connect(self.listenIsCall)
         self.timer1.start()
 
+        self.chatWindow = ChatWindow()
+
     def handleLogoutClick(self):
         msg = "QUIT"
         self.client.conn.send(msg.encode('utf-8'))
@@ -125,6 +127,7 @@ class PhonebookWindow(QMainWindow):
         if len(self.usersArea.selectedItems()) == 1:
             chosen_friend_name = str(self.usersArea.selectedItems()[0].text())
             msg = "CONN:" + chosen_friend_name
+            self.friend_name = chosen_friend_name
             self.client.conn.send(msg.encode('utf-8'))
             self.imCalling = True
 
@@ -143,7 +146,7 @@ class PhonebookWindow(QMainWindow):
     
     @pyqtSlot()         
     def openChatWindow(self):
-        self.chatWindow = ChatWindow()
+        #self.chatWindow = ChatWindow()
         #self.chatWindow.friend = friend
         self.chatWindow.myUsername = self.myUsername
         self.chatWindow.friendUsername = self.friend_name
@@ -186,24 +189,32 @@ class PhonebookWindow(QMainWindow):
             print(received)
             if received != b'':
 
-                message = received.decode('utf-8').split(":")
+                message = received.decode('utf-8')
+
+                print(message)
+
+                message = message.split(":")
+
                 print(message)
 
                 received_message_type = message[0]
                 if received_message_type == "CALL": #odbieram zgadzam sie 
+                    time.sleep(2)
                     self.friend_name = message[1]
                     keys = self.generate_keys()   
                     msg = "KEYS:" + message[1] + keys  
 
                     message = msg.split(":")
 
-                    ChatWindow.my_caesarKey = message[2]
-                    ChatWindow.my_fernetKey = message[3]
-                    ChatWindow.my_polybiusKey = message[4]
-                    ChatWindow.my_ragbabyKey = message[5]                  ##mess:target:cezar:fernet:polybius:rag_baby 
+                    self.chatWindow.my_caesarKey = message[2]
+                    self.chatWindow.my_fernetKey = message[3]
+                    self.chatWindow.my_polybiusKey = message[4]
+                    self.chatWindow.my_ragbabyKey = message[5]                  ##mess:target:cezar:fernet:polybius:rag_baby 
 
                     self.client.conn.send(msg.encode('utf-8'))
                 elif received_message_type == "CONN": #ja dzwonie
+                    time.sleep(2)
+
                     msg = "CALL:" + message[1]
                     self.client.conn.send(msg.encode('utf-8'))
                     self.friend_name = message[1]
@@ -229,25 +240,24 @@ class PhonebookWindow(QMainWindow):
 
                     splitted_keys = keys.split(":")
 
-                    ChatWindow.my_caesarKey = splitted_keys[0]
-                    ChatWindow.my_fernetKey = splitted_keys[1]
-                    ChatWindow.my_polybiusKey = splitted_keys[2]
-                    ChatWindow.my_ragbabyKey = splitted_keys[3] 
+                    self.chatWindow.my_caesarKey = splitted_keys[1]
+                    self.chatWindow.my_fernetKey = splitted_keys[2]
+                    self.chatWindow.my_polybiusKey = splitted_keys[3]
+                    self.chatWindow.my_ragbabyKey = splitted_keys[4] 
                          
-                    
-                    ChatWindow.friend_caesarKey = message[2]
-                    ChatWindow.friend_fernetKey = message[3]
-                    ChatWindow.friend_polybiusKey = message[4]
-                    ChatWindow.friend_ragbabyKey = message[5]
+                    self.chatWindow.friend_caesarKey = message[2]
+                    self.chatWindow.friend_fernetKey = message[3]
+                    self.chatWindow.friend_polybiusKey = message[4]
+                    self.chatWindow.friend_ragbabyKey = message[5]
                     
                     self.client.conn.send(msg.encode('utf-8'))#czyszczenie kluczy przy rozlaczeniu 
                 elif received_message_type == "KEYR": 
                     self.friend_name = message[1]
 
-                    ChatWindow.friend_caesarKey = message[2]
-                    ChatWindow.friend_fernetKey = message[3]
-                    ChatWindow.friend_polybiusKey = message[4]
-                    ChatWindow.friend_ragbabyKey = message[5]
+                    self.chatWindow.friend_caesarKey = message[2]
+                    self.chatWindow.friend_fernetKey = message[3]
+                    self.chatWindow.friend_polybiusKey = message[4]
+                    self.chatWindow.friend_ragbabyKey = message[5]
                 
                 elif received_message_type == "LEAV":
                     self.isCall = False
@@ -265,13 +275,13 @@ class PhonebookWindow(QMainWindow):
     def decrypt_message(self, message_content, decode_type):
 
         if decode_type == "CA":
-            return self.caesar.decrypt(key = self.friend_caesarKey, message = message_content)
+            return self.caesar.decrypt(key = int(self.chatWindow.friend_caesarKey), message = message_content)
         elif decode_type == "FE":
-            return self.fernet.decrypt(key = self.friend_fernetKey, message = message_content)
+            return self.fernet.decrypt(key = self.chatWindow.friend_fernetKey, message = message_content)
         elif decode_type == "PO":
-            return self.polybius.decrypt(key = self.friend_polybiusKey, word = message_content)
+            return self.polybius.decrypt(key = self.chatWindow.friend_polybiusKey, word = message_content)
         elif decode_type == "RA":
-            return self.rag_baby.decrypt(key = self.friend_ragbabyKey, text = message_content)
+            return self.rag_baby.decrypt(key = self.chatWindow.friend_ragbabyKey, text = message_content)
         elif decode_type == "NO":
             return message_content
 

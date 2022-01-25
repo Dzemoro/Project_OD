@@ -44,7 +44,7 @@ class ChatWindow(QMainWindow):
         self.encryptDropDown.setEditable(False)
         self.encryptDropDown.setObjectName("encryptDropDown")
         self.encryptDropDown.addItem("Bez szyfrowania")
-        self.encryptDropDown.addItem("Fernet") #jest taki likier dx 
+        #self.encryptDropDown.addItem("Fernet") #jest taki likier dx 
         self.encryptDropDown.addItem("RagBaby") #szmaciane dziecko
         self.encryptDropDown.addItem("Szyfr Cezara") #krul i wladca
         self.encryptDropDown.addItem("Szyfr Polibiusza") #kogo 
@@ -96,7 +96,7 @@ class ChatWindow(QMainWindow):
 
         self.myUsername = ""
         self.friendUsername = ""
-        self.lastMessageAuthorIsMe = False
+        self.lastMessageAuthor = ""
 
         self.caesar = CaesarCipher()
         self.fernet = FernetCipher()
@@ -170,12 +170,12 @@ class ChatWindow(QMainWindow):
         self.printInfo("Zmieniono szyfrowanie na: " + str(encryptType))
 
     def printMessage(self, sender, message):
-        if not self.lastMessageAuthorIsMe:
+        if not self.lastMessageAuthor == sender:
             username = "<span style=\"color:#FFBC97;\" >"
             username += str(sender)
             username += "</span>"
             self.messagesArea.append(username)
-            self.lastMessageAuthorIsMe = True
+            self.lastMessageAuthor = sender
 
         self.messagesArea.append(str(message))
     
@@ -184,7 +184,7 @@ class ChatWindow(QMainWindow):
         info += "--- "+str(message)+" ---"
         info += "</span>"
         self.messagesArea.append(info)
-        self.lastMessageAuthorIsMe = False
+        self.lastMessageAuthor = ""
 
     def open(self):
         self.setFixedSize(600, 800)

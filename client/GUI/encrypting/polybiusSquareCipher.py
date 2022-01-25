@@ -27,8 +27,6 @@ class PolybiusSquareCipher:
             
     def encrypt(self, word, key=''):
         """Encrypts message"""
-        # word = re.sub('[^A-Z]','', word)
-        # key = re.sub('[^A-Z]','', key)
         arr = self.generate_array(key)
         output = ''
         for char in word:
@@ -41,7 +39,6 @@ class PolybiusSquareCipher:
 
     def decrypt(self, word, key=''):
         """Decrypts message"""
-        # key = re.sub('[^A-Z]','', key)
         arr = self.generate_array(key)
         output = ''
         for i in range(int(len(word)/2)):
@@ -67,6 +64,3 @@ class PolybiusSquareCipher:
         decrypted_text = self.decrypt(encrypted_text, key)
 
         print(decrypted_text)
-    
-#polybius = PolybiusSquareCipher()
-#polybius.test()

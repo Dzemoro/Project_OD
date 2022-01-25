@@ -30,7 +30,7 @@ class ChatWindow(QMainWindow):
         self.contentLayout.setObjectName("contentLayout")
 
         self.disconnectButton = QtWidgets.QPushButton()
-        self.disconnectButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor)) #hover effect
+        self.disconnectButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.disconnectButton.setFixedSize(QtCore.QSize(120, 30))
         self.disconnectButton.setStyleSheet(buttonStyle)
         self.disconnectButton.setText("Rozłącz się")
@@ -44,11 +44,9 @@ class ChatWindow(QMainWindow):
         self.encryptDropDown.setEditable(False)
         self.encryptDropDown.setObjectName("encryptDropDown")
         self.encryptDropDown.addItem("Bez szyfrowania")
-        #self.encryptDropDown.addItem("Fernet") #jest taki likier dx 
-        self.encryptDropDown.addItem("RagBaby") #szmaciane dziecko
-        self.encryptDropDown.addItem("Szyfr Cezara") #krul i wladca
-        self.encryptDropDown.addItem("Szyfr Polibiusza") #kogo 
-        # self.encryptDropDown.setMaxVisibleItems(11)
+        self.encryptDropDown.addItem("RagBaby")
+        self.encryptDropDown.addItem("Szyfr Cezara")
+        self.encryptDropDown.addItem("Szyfr Polibiusza")
         self.encryptDropDown.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.encryptDropDown.view().setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.encryptDropDown.activated[str].connect(self.handleItemDropdown)
@@ -77,7 +75,7 @@ class ChatWindow(QMainWindow):
         self.bottomLayout.addWidget(self.messageInput, alignment=QtCore.Qt.AlignLeft)
         
         self.sendButton = QtWidgets.QPushButton()
-        self.sendButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor)) #hover effect
+        self.sendButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.sendButton.setMinimumSize(QtCore.QSize(100, 30))
         self.sendButton.setMaximumSize(QtCore.QSize(100, 30))
         self.sendButton.setStyleSheet(sendButtonStyle)
@@ -163,7 +161,6 @@ class ChatWindow(QMainWindow):
             self.disconnect_chat()
     
     def disconnect_chat(self):
-        #self.disconnect_flag = True
         import phonebookGui
         self.phonebookWindow = phonebookGui.PhonebookWindow()
         self.phonebookWindow.myUsername = self.myUsername
@@ -172,7 +169,6 @@ class ChatWindow(QMainWindow):
         self.close()
 
     def handleItemDropdown(self, encryptType):
-        # TODO Rzeczy różne niestworzone
         self.printInfo("Zmieniono szyfrowanie na: " + str(encryptType))
 
     def printMessage(self, sender, message):

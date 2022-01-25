@@ -11,12 +11,10 @@ context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
 context.load_cert_chain(certfile="C:\\Users\\mciec\\Desktop\\Studia\\OD\\Project_OD\\server\\src\\cert.pem")
 context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1
 context.set_ciphers('AES256+ECDH:AES256+EDH')
-#client = ssl.wrap_socket(client, keyfile="path/to/keyfile", certfile="path/to/certfile")
 conn = context.wrap_socket(client, server_hostname='127.0.0.1')
 
 
 def receiveServerData():
-    #conn.bind((HOST, PORT))
     conn.connect(('127.0.0.1',60000))
     run = True
     while run:

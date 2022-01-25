@@ -92,7 +92,6 @@ class LoginWindow(QMainWindow):
         if self.checkInputs():
 
             client = Client(self.ipInput.text(),int(self.portInput.text()))
-            #client = Client("127.0.0.1",60000)
 
             msg = "JOIN:" + self.nickInput.text()
             client.conn.send(msg.encode('utf-8'))

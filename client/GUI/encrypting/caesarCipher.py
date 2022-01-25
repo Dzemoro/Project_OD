@@ -43,6 +43,3 @@ class CaesarCipher:
         decrypted_text = self.decrypt(key, encrypted_text)
 
         print(decrypted_text)
-
-#caesar = CaesarCipher()
-#caesar.test()

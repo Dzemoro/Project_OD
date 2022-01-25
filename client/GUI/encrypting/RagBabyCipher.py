@@ -56,5 +56,3 @@ class RagBabyCipher:
         decrypted_text = self.decrypt(encrypted_text, key)
         print(decrypted_text)
 
-#ragbaby = RagBabyCipher()
-#ragbaby.test()

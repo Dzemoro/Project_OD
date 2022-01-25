@@ -12,7 +12,7 @@ class Client:
         self.port = port
 
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-        self.context.load_cert_chain(certfile="F:\\Repositories\\Project_OD\\client\\GUI\\cert.pem")
+        self.context.load_cert_chain(certfile=r"./client/GUI/cert.pem")
         self.context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1
         self.context.set_ciphers('AES256+ECDH:AES256+EDH')
 
@@ -21,19 +21,3 @@ class Client:
 
         self.conn = self.context.wrap_socket(self.client, server_hostname=str(self.ip))
         self.conn.connect((str(ip), int(port)))        
-
-
-# if __name__ == "__main__":
-##     #conn.bind((HOST, PORT))
-#     conn.connect(('127.0.0.1',60000))
-#     run = True
-#     while run:
-#         msg = input()
-#         conn.send(msg.encode())
-#         if msg == 'QUIT':
-#             receive = conn.recv(1024)
-#             print(receive.decode())
-#             run = False
-#         else:
-#             receive = conn.recv(1024)
-#             print(receive.decode())

@@ -92,8 +92,6 @@ class Server(object):
                         msg.send(message, target_user.conn)  
                         print(message)                        
 
-
-
                     elif type is MessageType.CONN:
                         print(" ---conn od "+ username)
                         target_username = data[1]

@@ -29,21 +29,13 @@ class PhonebookWindow(QMainWindow):
         self.setWindowTitle("Komunikator")
         self.setWindowIcon(QIcon(self.imgPath + "window_icon.png"))
 
-        self.timer1 = QTimer()
-        #self.timer2 = QTimer()
+        self.timer = QTimer()
        
         self.contentLayout = QtWidgets.QVBoxLayout()
 
         self.titleLabel = QtWidgets.QLabel()
         self.titleLabel.setStyleSheet(phonebookLabelStyle)
         self.titleLabel.setText("Witaj!\nZ kim chcesz porozmawiać?")
-
-        self.logoutButton = QtWidgets.QPushButton()
-        self.logoutButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor)) #hover effect
-        self.logoutButton.setFixedSize(QtCore.QSize(120, 30))
-        self.logoutButton.setStyleSheet(buttonStyle)
-        self.logoutButton.setText("Wyloguj się")
-        self.logoutButton.clicked.connect(self.handleLogoutClick)
 
         self.refreshButton = QtWidgets.QPushButton()
         self.refreshButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor)) #hover effect
@@ -60,7 +52,6 @@ class PhonebookWindow(QMainWindow):
         self.connectButton.clicked.connect(self.handleConnectClick)
 
         self.buttonLayout = QtWidgets.QGridLayout()
-        self.buttonLayout.addWidget(self.logoutButton, 0, 1)
         self.buttonLayout.addWidget(self.refreshButton, 1, 0)
         self.buttonLayout.addWidget(self.connectButton, 1, 1)
         self.buttonLayoutW = QWidget()
@@ -99,32 +90,14 @@ class PhonebookWindow(QMainWindow):
         self.imCalling = False
         self.receiveThread = None
 
-
-
-        self.timer1.timeout.connect(self.listenIsCall)
-        self.timer1.start()
-        #self.timer2.timeout.connect(self.kill_thread)
-        #self.timer2.start()
+        self.timer.timeout.connect(self.listenIsCall)
+        self.timer.start()
 
         self.chatWindow = ChatWindow()
-
-    def handleLogoutClick(self):
-        msg = "QUIT"
-        self.client.conn.send(msg.encode('utf-8'))
-        received = self.client.conn.recv(1024).decode('utf-8') #tego tu nie powinno byc bo recv 
-        if received == "SPOX":
-            import loginGui
-            self.loginWindow = loginGui.LoginWindow()
-            self.loginWindow.open()
-            self.close()
 
     def handleRefreshClick(self):
         msg = "LIST"
         self.client.conn.send(msg.encode('utf-8'))
-        # received = self.client.conn.recv(1024)
-        # users = received.decode().split(":")
-        # del users[0]
-        # self.addUsersToList(users)
 
     def handleConnectClick(self):
         if len(self.usersArea.selectedItems()) == 1:
@@ -135,22 +108,9 @@ class PhonebookWindow(QMainWindow):
             self.imCalling = True
 
             self.openChatWindow()
-
-            # received = self.client.conn.recv(1024).decode('utf-8')
-            # message = received.split(":")
-            # received_message_type = message[0]
-
-            # if received_message_type == "SPOX":
-            #     self.friend_name = message[1]
-            #     self.openChatWindow()  
-
-            # elif received_message_type == "DENY": #TODO deny ogarnac
-            #     pass
     
     @pyqtSlot()         
     def openChatWindow(self):
-        #self.chatWindow = ChatWindow()
-        #self.chatWindow.friend = friend
         self.chatWindow.myUsername = self.myUsername
         self.chatWindow.friendUsername = self.friend_name
         self.chatWindow.client = self.client
@@ -171,7 +131,6 @@ class PhonebookWindow(QMainWindow):
         self.setStyleSheet(dialogStyle)
         if self.myUsername != "":
             self.setMyUsername()
-        #self.handleRefreshClick()
         self.show()   
 
     @pyqtSlot()              
@@ -183,30 +142,16 @@ class PhonebookWindow(QMainWindow):
             self.receiveThread = threading.Thread(target=self.receiveServerData)
             self.receiveThread.setDaemon(True)
             self.receiveThread.start()
-    
-    @pyqtSlot() 
-    def kill_thread(self):
-        if self.chatWindow.disconnect_flag:
-            self.receiveThread.join()
           
     @pyqtSlot()              
     def receiveServerData(self):
         while True:
-            #time.sleep(3)
             received = self.client.conn.recv(1024)
-            print(received)
             if received != b'':
-
                 message = received.decode('utf-8')
-
-                print(message)
-
                 message = message.split(":")
-
-                print(message)
-
                 received_message_type = message[0]
-                if received_message_type == "CALL": #odbieram zgadzam sie 
+                if received_message_type == "CALL":
                     time.sleep(2)
                     self.friend_name = message[1]
                     keys = self.generate_keys()   
@@ -217,10 +162,10 @@ class PhonebookWindow(QMainWindow):
                     self.chatWindow.my_caesarKey = message[2]
                     self.chatWindow.my_fernetKey = message[3]
                     self.chatWindow.my_polybiusKey = message[4]
-                    self.chatWindow.my_ragbabyKey = message[5]                  ##mess:target:cezar:fernet:polybius:rag_baby 
+                    self.chatWindow.my_ragbabyKey = message[5]
 
                     self.client.conn.send(msg.encode('utf-8'))
-                elif received_message_type == "CONN": #ja dzwonie
+                elif received_message_type == "CONN":
                     time.sleep(2)
 
                     msg = "CALL:" + message[1]
@@ -241,7 +186,6 @@ class PhonebookWindow(QMainWindow):
                     self.chatWindow.printMessage(message[1], decrypted)       
   
                 elif received_message_type == "KEYS": 
-                    #self.friend_name = message[1]
                     keys = self.generate_keys()
 
                     msg = "KEYR:" + message[1] + keys   
@@ -260,8 +204,6 @@ class PhonebookWindow(QMainWindow):
                     
                     self.client.conn.send(msg.encode('utf-8'))#czyszczenie kluczy przy rozlaczeniu 
                 elif received_message_type == "KEYR": 
-                    #self.friend_name = message[1]
-
                     self.chatWindow.friend_caesarKey = message[2]
                     self.chatWindow.friend_fernetKey = message[3]
                     self.chatWindow.friend_polybiusKey = message[4]
@@ -275,8 +217,6 @@ class PhonebookWindow(QMainWindow):
                     break
                 
                 elif received_message_type == "LEAR":
-                    #self.isCall = False
-                    #self.chatWindow.disconnect_flag = True
                     break
                                    
                 elif received_message_type == "QUIT":

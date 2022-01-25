@@ -12,3 +12,5 @@ class MessageType(enum.Enum):
     CONN = 8
     CALL = 9
     KEYR = 10
+    LEAV = 11
+    LEAR = 12

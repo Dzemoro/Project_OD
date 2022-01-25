@@ -104,7 +104,26 @@ class Server(object):
                         message = data[0] + ":" + username
                         print(message)
 
-                        msg.send(message, target_user.conn)   
+                        msg.send(message, target_user.conn)
+
+                    elif type is MessageType.LEAV:
+                        print(" ---leav od "+ username)
+                        target_username = data[1]
+                        target_user = self.active_users[target_username] 
+                        message = data[0] + ":" + username
+                        print(message)
+
+                        msg.send(message, target_user.conn)
+
+                    elif type is MessageType.LEAR:
+                        print(" ---lear od "+ username)
+                        if data[1] != "":
+                            target_username = data[1]
+                            target_user = self.active_users[target_username] 
+                            message = data[0] + ":" + username
+                            print(message)
+
+                            msg.send(message, target_user.conn)    
 
                     elif type is MessageType.QUIT:
                         if (username != '') and (username in self.active_users.keys()):

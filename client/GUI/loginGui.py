@@ -1,4 +1,4 @@
-import sys, path, os, asyncio, threading
+import sys, os, asyncio, threading
 
 from usernames import is_safe_username
 

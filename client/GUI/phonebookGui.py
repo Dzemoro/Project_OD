@@ -29,7 +29,7 @@ class PhonebookWindow(QMainWindow):
         self.setWindowTitle("Komunikator")
         self.setWindowIcon(QIcon(self.imgPath + "window_icon.png"))
 
-        self.timer = QTimer()
+        self.timer1 = QTimer()
        
         self.contentLayout = QtWidgets.QVBoxLayout()
 
@@ -96,11 +96,12 @@ class PhonebookWindow(QMainWindow):
         self.friend_name = ""
         self.isCall = False
         self.imCalling = False
+        self.receiveThread = None
 
 
 
-        self.timer.timeout.connect(self.listenIsCall)
-        self.timer.start()
+        self.timer1.timeout.connect(self.listenIsCall)
+        self.timer1.start()
 
     def handleLogoutClick(self):
         msg = "QUIT"
@@ -156,8 +157,9 @@ class PhonebookWindow(QMainWindow):
     @pyqtSlot()           
     def open(self):
 
-        receiveThread = threading.Thread(target=self.receiveServerData)
-        receiveThread.start()  
+        self.receiveThread = threading.Thread(target=self.receiveServerData)
+        self.receiveThread.setDaemon(True)
+        self.receiveThread.start()  
 
         self.setFixedSize(600, 800)
         self.setStyleSheet(dialogStyle)
@@ -172,8 +174,9 @@ class PhonebookWindow(QMainWindow):
             self.openChatWindow()
             self.isCall = False                
 
-            receiveThread = threading.Thread(target=self.receiveServerData)
-            receiveThread.start()   
+            self.receiveThread = threading.Thread(target=self.receiveServerData)
+            self.receiveThread.setDaemon(True)
+            self.receiveThread.start()
           
     @pyqtSlot()              
     def receiveServerData(self):
@@ -245,6 +248,16 @@ class PhonebookWindow(QMainWindow):
                     ChatWindow.friend_fernetKey = message[3]
                     ChatWindow.friend_polybiusKey = message[4]
                     ChatWindow.friend_ragbabyKey = message[5]
+                
+                elif received_message_type == "LEAV":
+                    self.isCall = False
+                    msg = "LEAR:" + self.friend_name
+                    self.client.conn.send(msg.encode('utf-8'))
+                    break
+                
+                elif received_message_type == "LEAR":
+                    self.isCall = False
+                    break
                                    
                 elif received_message_type == "QUIT":
                     pass

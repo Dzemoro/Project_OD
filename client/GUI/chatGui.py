@@ -1,4 +1,5 @@
 from email import message_from_binary_file
+from http import client
 import sys, os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -110,7 +111,9 @@ class ChatWindow(QMainWindow):
         self.friend_caesarKey = ""
         self.friend_fernetKey = ""
         self.friend_polybiusKey = ""
-        self.friend_ragbabyKey = ""        
+        self.friend_ragbabyKey = ""
+
+        self.disconnect_flag = False        
         
 
     def handleSendClick(self):
@@ -152,6 +155,8 @@ class ChatWindow(QMainWindow):
             return message_content, "NO"
 
     def handleDisconnectClick(self):
+        message = "LEAV:"+self.friendUsername
+        self.client.conn.send(message.encode('utf-8'))
         # TODO Rzeczy różne niestworzone
         import phonebookGui
         self.phonebookWindow = phonebookGui.PhonebookWindow()

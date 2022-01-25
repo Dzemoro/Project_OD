@@ -58,7 +58,8 @@ class Server(object):
                     elif type is MessageType.LIST:
                         list_content = MessageType.LIST.name
                         for name in self.active_users.keys():
-                            list_content = list_content + ':' + name
+                            if name != username:
+                                list_content = list_content + ':' + name
                         msg.send(list_content, conn)
                     elif type is MessageType.GIVE:
                         username_to_map = data[1]
@@ -73,19 +74,24 @@ class Server(object):
                         target_username = data[1]
                         target_user = self.active_users[target_username] 
                         message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] #mess:target:content:szyfrjaki
-                        msg.send(message, target_user.conn)                        
+                        msg.send(message, target_user.conn)
+                        print("MESSAGE IN SERVER:" + message)                        
 
                     elif type is MessageType.KEYS:
                         target_username = data[1]
                         target_user = self.active_users[target_username] 
                         message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] + ":" + data[4] + ":" + data[5] #keys:target:cezar:fernet:polybius:rag_baby
                         msg.send(message, target_user.conn)  
+                        print(message)                        
+
 
                     elif type is MessageType.KEYR:
                         target_username = data[1]
                         target_user = self.active_users[target_username] 
                         message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] + ":" + data[4] + ":" + data[5] #keys:target:cezar:fernet:polybius:rag_baby
                         msg.send(message, target_user.conn)  
+                        print(message)                        
+
 
 
                     elif type is MessageType.CONN:

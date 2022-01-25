@@ -15,7 +15,12 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 from client import Client
 from stylesheets import *
-from chatGui import *
+from chatGui import ChatWindow
+
+from encrypting.fernet import FernetCipher
+from encrypting.caesarCipher import CaesarCipher
+from encrypting.polybiusSquareCipher import PolybiusSquareCipher
+from encrypting.RagBabyCipher import RagBabyCipher
 
 class PhonebookWindow(QMainWindow):
     imgPath = os.path.dirname(os.path.abspath(__file__)) + "/images/"
@@ -82,10 +87,17 @@ class PhonebookWindow(QMainWindow):
         mainW.setLayout(self.mainLayout)
         self.setCentralWidget(mainW)
 
+        self.caesar = CaesarCipher()
+        self.fernet = FernetCipher()
+        self.polybius = PolybiusSquareCipher()
+        self.rag_baby = RagBabyCipher()
+
         self.myUsername = ""
         self.friend_name = ""
         self.isCall = False
         self.imCalling = False
+
+
 
         self.timer.timeout.connect(self.listenIsCall)
         self.timer.start()
@@ -181,10 +193,11 @@ class PhonebookWindow(QMainWindow):
                     msg = "KEYS:" + message[1] + keys  
 
                     message = msg.split(":")
-                    self.my_caesarKey = message[2]
-                    self.my_fernetKey = message[3]
-                    self.my_polybiusKey = message[4]
-                    self.my_ragbabyKey = message[5]                  ##mess:target:cezar:fernet:polybius:rag_baby 
+
+                    ChatWindow.my_caesarKey = message[2]
+                    ChatWindow.my_fernetKey = message[3]
+                    ChatWindow.my_polybiusKey = message[4]
+                    ChatWindow.my_ragbabyKey = message[5]                  ##mess:target:cezar:fernet:polybius:rag_baby 
 
                     self.client.conn.send(msg.encode('utf-8'))
                 elif received_message_type == "CONN": #ja dzwonie
@@ -202,32 +215,37 @@ class PhonebookWindow(QMainWindow):
                     decode_type = message[3]
 
                     decrypted = self.decrypt_message(message_content, decode_type)
-
                     
-                    #decode kluczami
                     self.chatWindow.printMessage(message[1], decrypted)       
   
                 elif received_message_type == "KEYS": 
                     self.friend_name = message[1]
-                    msg = "KEYR:" + message[1] + keys  
-                    keys = self.generate_keys()      
-                    
-                    self.friend_caesarKey = message[2]
-                    self.friend_fernetKey = message[3]
-                    self.friend_polybiusKey = message[4]
-                    self.friend_ragbabyKey = message[5]
-                    
-                    ##mess:target:cezar:fernet:polybius:rag_baby 
+                    keys = self.generate_keys()
 
+                    msg = "KEYR:" + message[1] + keys   
+
+                    splitted_keys = keys.split(":")
+
+                    ChatWindow.my_caesarKey = splitted_keys[0]
+                    ChatWindow.my_fernetKey = splitted_keys[1]
+                    ChatWindow.my_polybiusKey = splitted_keys[2]
+                    ChatWindow.my_ragbabyKey = splitted_keys[3] 
+                         
+                    
+                    ChatWindow.friend_caesarKey = message[2]
+                    ChatWindow.friend_fernetKey = message[3]
+                    ChatWindow.friend_polybiusKey = message[4]
+                    ChatWindow.friend_ragbabyKey = message[5]
+                    
                     self.client.conn.send(msg.encode('utf-8'))#czyszczenie kluczy przy rozlaczeniu 
-                    ##mess:target:cezar:fernet:polybius:rag_baby 
                 elif received_message_type == "KEYR": 
                     self.friend_name = message[1]
-                    
-                    ##mess:target:cezar:fernet:polybius:rag_baby 
-                    pass
 
-                
+                    ChatWindow.friend_caesarKey = message[2]
+                    ChatWindow.friend_fernetKey = message[3]
+                    ChatWindow.friend_polybiusKey = message[4]
+                    ChatWindow.friend_ragbabyKey = message[5]
+                                   
                 elif received_message_type == "QUIT":
                     pass
 
@@ -241,6 +259,8 @@ class PhonebookWindow(QMainWindow):
             return self.polybius.decrypt(key = self.friend_polybiusKey, word = message_content)
         elif decode_type == "RA":
             return self.rag_baby.decrypt(key = self.friend_ragbabyKey, text = message_content)
+        elif decode_type == "NO":
+            return message_content
 
 
     def generate_keys(self):

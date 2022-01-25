@@ -11,3 +11,4 @@ class MessageType(enum.Enum):
     KEYS = 7
     CONN = 8
     CALL = 9
+    KEYR = 10

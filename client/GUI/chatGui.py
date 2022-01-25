@@ -1,3 +1,4 @@
+from email import message_from_binary_file
 import sys, os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -104,19 +105,20 @@ class ChatWindow(QMainWindow):
         self.my_caesarKey = ""
         self.my_fernetKey = ""
         self.my_polybiusKey = ""
-        self.my_ragbabyKey = ""            
-        
+        self.my_ragbabyKey = ""    
+
         self.friend_caesarKey = ""
         self.friend_fernetKey = ""
         self.friend_polybiusKey = ""
-        self.friend_ragbabyKey = ""
+        self.friend_ragbabyKey = ""        
+        
 
     def handleSendClick(self):
         if self.messageInput.toPlainText() and not self.messageInput.toPlainText().isspace():
 
             message_content = self.messageInput.toPlainText()
-            encrypted_message, encrypt_type = self.encrypt_message(message_content, str(self.encryptDropDown.currentText())) ##castowanie dla jaj
-            print(message_content)
+            encrypted_message, encrypt_type = self.encrypt_message(message_content, self.encryptDropDown.currentText()) ##castowanie dla jaj
+            print(encrypted_message)
             msg = "MESS:" + self.friendUsername + ":" + encrypted_message + ":" + encrypt_type
             self.client.conn.send(msg.encode('utf-8'))
 
@@ -126,13 +128,28 @@ class ChatWindow(QMainWindow):
     def encrypt_message(self, message_content, encode_type):
 
         if encode_type == "Szyfr Cezara":
-            return self.caesar.encrypt(key = self.my_caesarKey, message = message_content), "CA"
+            print(type(self.my_caesarKey))
+            print(self.my_caesarKey)
+            return self.caesar.encrypt(key = int(self.my_caesarKey), message = message_content), "CA"
+
         elif encode_type == "Fernet":
+            print(type(self.my_fernetKey))
+            print(self.my_fernetKey)
             return self.fernet.encrypt(key = self.my_fernetKey, message = message_content), "FE"
+
         elif encode_type == "Szyfr Polibiusza":
+            print(type(self.my_polybiusKey))
+            print(self.my_polybiusKey)
             return self.polybius.encrypt(key = self.my_polybiusKey, word = message_content), "PO"
+
         elif encode_type == "RagBaby":
+            print(type(self.my_ragbabyKey))
+            print(self.my_ragbabyKey)
             return self.rag_baby.encrypt(key = self.my_ragbabyKey, text = message_content), "RA"
+
+        elif encode_type == "Bez szyfrowania":
+
+            return message_content, "NO"
 
     def handleDisconnectClick(self):
         # TODO Rzeczy różne niestworzone

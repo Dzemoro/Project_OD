@@ -1,6 +1,6 @@
 from email import message_from_binary_file
 from http import client
-import sys, os
+import sys, os, time
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -155,9 +155,15 @@ class ChatWindow(QMainWindow):
             return message_content, "NO"
 
     def handleDisconnectClick(self):
-        message = "LEAV:"+self.friendUsername
-        self.client.conn.send(message.encode('utf-8'))
-        # TODO Rzeczy różne niestworzone
+        if self.disconnect_flag:
+            self.disconnect_chat()
+        else:
+            message = "LEAV:" + self.friendUsername
+            self.client.conn.send(message.encode('utf-8'))
+            self.disconnect_chat()
+    
+    def disconnect_chat(self):
+        #self.disconnect_flag = True
         import phonebookGui
         self.phonebookWindow = phonebookGui.PhonebookWindow()
         self.phonebookWindow.myUsername = self.myUsername

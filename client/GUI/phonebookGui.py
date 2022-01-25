@@ -30,6 +30,7 @@ class PhonebookWindow(QMainWindow):
         self.setWindowIcon(QIcon(self.imgPath + "window_icon.png"))
 
         self.timer1 = QTimer()
+        #self.timer2 = QTimer()
        
         self.contentLayout = QtWidgets.QVBoxLayout()
 
@@ -102,6 +103,8 @@ class PhonebookWindow(QMainWindow):
 
         self.timer1.timeout.connect(self.listenIsCall)
         self.timer1.start()
+        #self.timer2.timeout.connect(self.kill_thread)
+        #self.timer2.start()
 
         self.chatWindow = ChatWindow()
 
@@ -180,6 +183,11 @@ class PhonebookWindow(QMainWindow):
             self.receiveThread = threading.Thread(target=self.receiveServerData)
             self.receiveThread.setDaemon(True)
             self.receiveThread.start()
+    
+    @pyqtSlot() 
+    def kill_thread(self):
+        if self.chatWindow.disconnect_flag:
+            self.receiveThread.join()
           
     @pyqtSlot()              
     def receiveServerData(self):
@@ -233,7 +241,7 @@ class PhonebookWindow(QMainWindow):
                     self.chatWindow.printMessage(message[1], decrypted)       
   
                 elif received_message_type == "KEYS": 
-                    self.friend_name = message[1]
+                    #self.friend_name = message[1]
                     keys = self.generate_keys()
 
                     msg = "KEYR:" + message[1] + keys   
@@ -252,7 +260,7 @@ class PhonebookWindow(QMainWindow):
                     
                     self.client.conn.send(msg.encode('utf-8'))#czyszczenie kluczy przy rozlaczeniu 
                 elif received_message_type == "KEYR": 
-                    self.friend_name = message[1]
+                    #self.friend_name = message[1]
 
                     self.chatWindow.friend_caesarKey = message[2]
                     self.chatWindow.friend_fernetKey = message[3]
@@ -261,12 +269,14 @@ class PhonebookWindow(QMainWindow):
                 
                 elif received_message_type == "LEAV":
                     self.isCall = False
+                    self.chatWindow.disconnect_flag = True
                     msg = "LEAR:" + self.friend_name
                     self.client.conn.send(msg.encode('utf-8'))
                     break
                 
                 elif received_message_type == "LEAR":
-                    self.isCall = False
+                    #self.isCall = False
+                    #self.chatWindow.disconnect_flag = True
                     break
                                    
                 elif received_message_type == "QUIT":

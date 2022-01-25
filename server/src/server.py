@@ -27,7 +27,7 @@ class Server(object):
         self.lock = threading.Lock()
     
     def run(self):
-        print("---Server is running---")
+        print("---SERVER IS RUNNING---\n\n")
         self.sock.listen(50)
         
         while self.is_running:
@@ -45,98 +45,87 @@ class Server(object):
             running = True
             username = ''
             while running:
-                user = User(conn, addr)
+                user = User(conn, addr, False)
                 msg = Message('UTF-8')
                 data = msg.receive(conn)
-                print(data)
                 if len(data) >= 1:
                     type = msg.identify_message_type(data[0])
                     if type is MessageType.JOIN:
                         username = data[1]
                         self.active_users[username] = user
                         msg.send(MessageType.SPOX.name, conn)
+                        print(f"{username} has joined to the server!\n")
+
                     elif type is MessageType.LIST:
                         list_content = MessageType.LIST.name
                         for name in self.active_users.keys():
-                            if name != username:
+                            if (name != username) and not self.active_users[name].calling:
                                 list_content = list_content + ':' + name
                         msg.send(list_content, conn)
-                    elif type is MessageType.GIVE:
-                        username_to_map = data[1]
-                        if username_to_map in self.active_users.keys():
-                            ip_addr = self.active_users[username_to_map].get_ip_address()
-                            message_content = MessageType.GIVE.name + ':' + username_to_map + ':' + ip_addr[0] + ':' + str(ip_addr[1])
-                            msg.send(message_content, conn)
-                        else:
-                            msg.send(MessageType.DENY.name, conn)
 
                     elif type is MessageType.MESS:
                         target_username = data[1]
                         target_user = self.active_users[target_username] 
-                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] #mess:target:content:szyfrjaki
+                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3]
                         msg.send(message, target_user.conn)
-                        print("MESSAGE IN SERVER:" + message)                        
+                        print("-----------------------------------------------------------\n")
+                        print(f"MESSAGE CONTENT: {data[2]}\n")
+                        print(f"MESSAGE FROM: {username}\n")
+                        print(f"MESSAGE TO: {target_username}\n")
+                        print(f"ENCRYPT TYPE: {data[3]}\n")
+                        print("-----------------------------------------------------------\n")                        
 
                     elif type is MessageType.KEYS:
                         target_username = data[1]
                         target_user = self.active_users[target_username] 
-                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] + ":" + data[4] + ":" + data[5] #keys:target:cezar:fernet:polybius:rag_baby
-                        msg.send(message, target_user.conn)  
-                        print(message)                        
-
+                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] + ":" + data[4] + ":" + data[5]
+                        msg.send(message, target_user.conn)                         
 
                     elif type is MessageType.KEYR:
                         target_username = data[1]
                         target_user = self.active_users[target_username] 
-                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] + ":" + data[4] + ":" + data[5] #keys:target:cezar:fernet:polybius:rag_baby
-                        msg.send(message, target_user.conn)  
-                        print(message)                        
+                        message = data[0] + ":" + username + ":" + data[2] + ":" + data[3] + ":" + data[4] + ":" + data[5]
+                        msg.send(message, target_user.conn)                       
 
                     elif type is MessageType.CONN:
-                        print(" ---conn od "+ username)
+                        self.active_users[username].calling = True 
                         target_username = data[1]
                         target_user = self.active_users[target_username] 
                         message = data[0] + ":" + username
-                        print(message)
-
                         msg.send(message, target_user.conn)    
 
                     elif type is MessageType.CALL:
-                        print(" ---call od "+ username)
+                        self.active_users[username].calling = True 
                         target_username = data[1]
                         target_user = self.active_users[target_username] 
                         message = data[0] + ":" + username
-                        print(message)
-
                         msg.send(message, target_user.conn)
 
                     elif type is MessageType.LEAV:
-                        print(" ---leav od "+ username)
+                        self.active_users[username].calling = False
                         target_username = data[1]
                         target_user = self.active_users[target_username] 
                         message = data[0] + ":" + username
-                        print(message)
-
                         msg.send(message, target_user.conn)
 
                     elif type is MessageType.LEAR:
-                        print(" ---lear od "+ username)
+                        self.active_users[username].calling = False
                         if data[1] != "":
                             target_username = data[1]
                             target_user = self.active_users[target_username] 
                             message = data[0] + ":" + username
-                            print(message)
-
                             msg.send(message, target_user.conn)    
 
                     elif type is MessageType.QUIT:
                         if (username != '') and (username in self.active_users.keys()):
                             self.active_users.pop(username)
                             msg.send(MessageType.SPOX.name, conn)
+                            print(f"{username} has left the server\n")
                             conn.close()
                             running = False
                     else:
                         msg.send(MessageType.DENY.name, conn)
         except socket.error as err:
             if username in self.active_users.keys():
+                print(f"{username} has left the server\n")
                 self.active_users.pop(username)

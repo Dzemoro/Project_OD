@@ -111,12 +111,12 @@ class ChatWindow(QMainWindow):
         self.friend_fernetKey = ""
         self.friend_polybiusKey = ""
         self.friend_ragbabyKey = ""        
-        
 
     def handleSendClick(self):
         if self.messageInput.toPlainText() and not self.messageInput.toPlainText().isspace():
 
             message_content = self.messageInput.toPlainText()
+            message_content = message_content.replace(":","")
             encrypted_message, encrypt_type = self.encrypt_message(message_content, self.encryptDropDown.currentText()) ##castowanie dla jaj
             print(encrypted_message)
             msg = "MESS:" + self.friendUsername + ":" + encrypted_message + ":" + encrypt_type
